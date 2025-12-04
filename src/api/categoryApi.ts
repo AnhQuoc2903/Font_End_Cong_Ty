@@ -19,4 +19,6 @@ export const categoryApi = {
   delete(id: string) {
     return axiosClient.delete(`/categories/${id}`);
   },
+  search: (q = "", opts: { page?: number; limit?: number } = {}) =>
+    axiosClient.get("/categories/search", { params: { q, ...opts } }),
 };

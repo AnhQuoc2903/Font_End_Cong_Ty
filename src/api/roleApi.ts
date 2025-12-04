@@ -16,4 +16,6 @@ export const roleApi = {
   remove(id: string) {
     return axiosClient.delete(`/roles/${id}`);
   },
+  search: (q = "", opts: { page?: number; limit?: number } = {}) =>
+    axiosClient.get("/roles/search", { params: { q, ...opts } }),
 };

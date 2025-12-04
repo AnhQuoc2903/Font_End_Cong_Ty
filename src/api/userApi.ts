@@ -18,4 +18,6 @@ export const userApi = {
   remove(id: string) {
     return axiosClient.delete(`/users/${id}`);
   },
+  search: (q = "", opts: { page?: number; limit?: number } = {}) =>
+    axiosClient.get("/users/search", { params: { q, ...opts } }),
 };

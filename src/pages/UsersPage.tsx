@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import {
   Button,
   Form,
@@ -16,10 +16,7 @@ import { userApi } from "../api/userApi";
 import { roleApi } from "../api/roleApi";
 import { useAuth } from "../context/AuthContext";
 
-type Role = {
-  _id: string;
-  name: string;
-};
+type Role = { _id: string; name: string };
 
 export type UserRow = {
   _id: string;
@@ -42,16 +39,19 @@ const UsersPage: React.FC = () => {
 
   const canManage = hasPermission("ADMIN_PANEL");
 
-  // load users + roles
-  const fetchData = async () => {
+  // search
+  const [q, setQ] = useState("");
+  const debounceRef = useRef<number | undefined>(undefined);
+
+  const fetchAll = async () => {
     try {
       setLoading(true);
       const [usersRes, rolesRes] = await Promise.all([
         userApi.getAll(),
         roleApi.getAll(),
       ]);
-      setData(usersRes.data);
-      setRoles(rolesRes.data);
+      setData(usersRes.data || []);
+      setRoles(rolesRes.data || []);
     } catch (err) {
       console.error(err);
       message.error("Không tải được danh sách người dùng");
@@ -60,15 +60,40 @@ const UsersPage: React.FC = () => {
     }
   };
 
+  const searchUsers = async (query = "") => {
+    try {
+      setLoading(true);
+      const res = query
+        ? await userApi.search(query, { limit: 200 })
+        : await userApi.getAll();
+      const payload = res.data?.data ?? res.data;
+      setData(payload || []);
+    } catch (err) {
+      console.error(err);
+      message.error("Lỗi khi tìm người dùng");
+    } finally {
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
-    fetchData();
+    fetchAll();
   }, []);
+
+  const onSearchChange = (val: string) => {
+    if (debounceRef.current) window.clearTimeout(debounceRef.current);
+    debounceRef.current = window.setTimeout(() => {
+      setQ(val);
+      searchUsers(val);
+    }, 350);
+  };
+
+
 
   const openModal = (user?: UserRow) => {
     setEditing(user || null);
     setModalOpen(true);
     form.resetFields();
-
     if (user) {
       form.setFieldsValue({
         email: user.email,
@@ -80,32 +105,33 @@ const UsersPage: React.FC = () => {
       form.setFieldsValue({ isActive: true });
     }
   };
-  /* eslint-disable @typescript-eslint/no-explicit-any */
-  const onFinish = async (values: any) => {
-    try {
-      if (editing) {
-        await userApi.update(editing._id, {
-          fullName: values.fullName,
-          roleIds: values.roleIds || [],
-          isActive: values.isActive,
-        });
-        message.success("Cập nhật người dùng thành công");
-      } else {
-        await userApi.create({
-          email: values.email,
-          password: values.password,
-          fullName: values.fullName,
-          roleIds: values.roleIds || [],
-        });
-        message.success("Tạo người dùng thành công");
+
+  /* eslint-disable @typescript-eslint/no-explicit-any */ const onFinish =
+    async (values: any) => {
+      try {
+        if (editing) {
+          await userApi.update(editing._id, {
+            fullName: values.fullName,
+            roleIds: values.roleIds || [],
+            isActive: values.isActive,
+          });
+          message.success("Cập nhật người dùng thành công");
+        } else {
+          await userApi.create({
+            email: values.email,
+            password: values.password,
+            fullName: values.fullName,
+            roleIds: values.roleIds || [],
+          });
+          message.success("Tạo người dùng thành công");
+        }
+        setModalOpen(false);
+        searchUsers(q);
+      } catch (err: any) {
+        console.error(err);
+        message.error(err?.response?.data?.message || "Lỗi xử lý người dùng");
       }
-      setModalOpen(false);
-      fetchData();
-    } catch (err: any) {
-      console.error(err);
-      message.error(err?.response?.data?.message || "Lỗi xử lý người dùng");
-    }
-  };
+    };
 
   const handleDelete = (id: string) => {
     Modal.confirm({
@@ -117,7 +143,7 @@ const UsersPage: React.FC = () => {
         try {
           await userApi.remove(id);
           message.success("Đã xóa người dùng");
-          fetchData();
+          searchUsers(q);
         } catch (err: any) {
           console.error(err);
           message.error(err?.response?.data?.message || "Xóa thất bại");
@@ -137,13 +163,8 @@ const UsersPage: React.FC = () => {
     {
       title: "Vai trò",
       key: "roles",
-      render: (_, record) => (
-        <>
-          {(record.roles || []).map((r) => (
-            <Tag key={r._id}>{r.name}</Tag>
-          ))}
-        </>
-      ),
+      render: (_, record) =>
+        (record.roles || []).map((r) => <Tag key={r._id}>{r.name}</Tag>),
     },
     {
       title: "Kích hoạt",
@@ -175,12 +196,20 @@ const UsersPage: React.FC = () => {
 
   return (
     <>
-      <Space style={{ marginBottom: 16 }}>
+      <Space style={{ marginBottom: 12, width: "100%" }}>
         {canManage && (
           <Button type="primary" onClick={() => openModal()}>
             Thêm người dùng
           </Button>
         )}
+        <div style={{ display: "flex", gap: 8 }}>
+          <Input
+            placeholder="Tìm theo email hoặc tên..."
+            allowClear
+            onChange={(e) => onSearchChange(e.target.value)}
+            style={{ width: 250 }}
+          />
+        </div>
       </Space>
 
       <Table
@@ -190,7 +219,6 @@ const UsersPage: React.FC = () => {
         columns={columns}
         pagination={{ pageSize: 10 }}
       />
-
       <Modal
         title={editing ? "Sửa người dùng" : "Thêm người dùng"}
         open={modalOpen}

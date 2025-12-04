@@ -29,7 +29,7 @@ import {
 } from "@ant-design/icons";
 
 import { artifactApi } from "../api/artifactApi";
-import { aiApi } from "../api/aiApi"; // <-- import default
+import { aiApi } from "../api/aiApi";
 import { useAuth } from "../context/AuthContext";
 import ArtifactFilterBar from "../components/ArtifactFilterBar";
 import ImageCell from "../components/ImageCell";
@@ -237,23 +237,20 @@ const ArtifactsPage: React.FC = () => {
     }
   };
 
-  // filter data
   const filteredData = useMemo(() => {
     if (!searchText && !statusFilter) return data;
     const text = removeVietnameseTones(searchText.trim());
+
     return data.filter((item) => {
-      const combined = removeVietnameseTones(
-        `${item.code} ${item.name} ${item.description || ""} ${
-          item.location || ""
-        } ${item.category?.name || ""}`
+      const haystack = removeVietnameseTones(
+        `${item.code || ""} ${item.name || ""}`
       );
-      if (text && !combined.includes(text)) return false;
+      if (text && !haystack.includes(text)) return false;
       if (statusFilter && item.status !== statusFilter) return false;
       return true;
     });
   }, [data, searchText, statusFilter]);
 
-  // columns
   const columns: ColumnsType<Artifact> = useMemo(
     () => [
       { title: "STT", key: "index", width: 60, render: (_t, _r, i) => i + 1 },

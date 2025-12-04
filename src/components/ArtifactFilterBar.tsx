@@ -1,4 +1,5 @@
-import React from "react";
+// ArtifactFilterBar.transition.tsx
+import React, { useState, useTransition, useEffect } from "react";
 import { Button, Input, Select, Space } from "antd";
 
 type Props = {
@@ -18,6 +19,23 @@ const ArtifactFilterBar: React.FC<Props> = ({
   statusFilter,
   onStatusFilterChange,
 }) => {
+  const [inputValue, setInputValue] = useState(searchText || "");
+  const [isPending, startTransition] = useTransition();
+
+  // keep local input in sync if parent changes searchText externally
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setInputValue(searchText || "");
+  }, [searchText]);
+
+  const handleChange = (val: string) => {
+    setInputValue(val);
+    // defer the expensive update (filter) so UI stays snappy
+    startTransition(() => {
+      onSearchTextChange(val);
+    });
+  };
+
   return (
     <Space style={{ marginBottom: 16 }}>
       {canCreate && (
@@ -28,9 +46,11 @@ const ArtifactFilterBar: React.FC<Props> = ({
 
       <Input
         placeholder="Tìm theo mã hoặc tên"
-        value={searchText}
-        onChange={(e) => onSearchTextChange(e.target.value)}
+        value={inputValue}
+        onChange={(e) => handleChange(e.target.value)}
         style={{ width: 250 }}
+        allowClear
+        onPressEnter={() => onSearchTextChange(inputValue)}
       />
 
       <Select
@@ -44,8 +64,11 @@ const ArtifactFilterBar: React.FC<Props> = ({
         <Select.Option value="con">Còn hàng</Select.Option>
         <Select.Option value="ban">Đã bán / Hết</Select.Option>
       </Select>
+
+      {/* Optional visual hint */}
+      {isPending ? <span>Loading…</span> : null}
     </Space>
   );
 };
 
-export default ArtifactFilterBar;
+export default React.memo(ArtifactFilterBar);
