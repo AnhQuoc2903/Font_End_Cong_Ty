@@ -14,23 +14,21 @@ import {
   Tag,
   Spin,
   Card,
+  Popconfirm,
   Image,
 } from "antd";
 import type { ColumnsType } from "antd/es/table";
 import {
   EditOutlined,
   DeleteOutlined,
-  PlusCircleOutlined,
-  MinusCircleOutlined,
-  SlidersOutlined,
   HistoryOutlined,
   SearchOutlined,
-  MoreOutlined,
   PictureOutlined,
+  EllipsisOutlined,
 } from "@ant-design/icons";
 
 import { artifactApi } from "../api/artifactApi";
-import {aiApi} from "../api/aiApi"; // <-- import default
+import { aiApi } from "../api/aiApi"; // <-- import default
 import { useAuth } from "../context/AuthContext";
 import ArtifactFilterBar from "../components/ArtifactFilterBar";
 import ImageCell from "../components/ImageCell";
@@ -202,9 +200,7 @@ const ArtifactsPage: React.FC = () => {
     }
   };
 
-  // When user selects an image from Google results:
   const onSelectGoogleImage = async (imageUrl: string) => {
-    // Open Vision modal and analyze
     setVisionImageUrl(imageUrl);
     setVisionOpen(true);
     setVisionLoading(true);
@@ -220,25 +216,6 @@ const ArtifactsPage: React.FC = () => {
       setVisionLoading(false);
     }
   };
-
-  // Save selected image URL to artifact (PATCH)
-  // const onSaveImageToArtifact = async (
-  //   artifactId: string,
-  //   imageUrl: string
-  // ) => {
-  //   try {
-  //     await artifactApi.update(artifactId, { imageUrl });
-  //     message.success("Đã lưu ảnh vào hiện vật");
-  //     setVisionOpen(false);
-  //     setGoogleOpen(false);
-  //     await fetchData();
-  //   } catch (err: any) {
-  //     console.error(err);
-  //     message.error(err?.response?.data?.message || "Lưu ảnh thất bại");
-  //   }
-  // };
-
-  // open history modal
   const openHistory = async (artifact: Artifact) => {
     setSelectedArtifact(artifact);
     setHistoryOpen(true);
@@ -285,12 +262,13 @@ const ArtifactsPage: React.FC = () => {
         title: "Tên",
         dataIndex: "name",
         key: "name",
+        width: 140,
         render: (v) => shorten(v, 36),
       },
       {
         title: "Ảnh",
         key: "image",
-        width: 120,
+        width: 160,
         align: "center",
         render: (_: any, record: Artifact) => (
           <ImageCell src={record.imageUrl} alt={record.name} size={96} />
@@ -300,7 +278,7 @@ const ArtifactsPage: React.FC = () => {
         title: "Danh mục",
         key: "category",
         dataIndex: ["category", "name"],
-        width: 160,
+        width: 70,
         render: (v) => shorten(v as string, 24),
       },
       {
@@ -308,7 +286,7 @@ const ArtifactsPage: React.FC = () => {
         dataIndex: "quantityCurrent",
         key: "quantityCurrent",
         width: 100,
-        align: "right",
+        align: "center",
       },
       {
         title: "Vị trí",
@@ -322,54 +300,56 @@ const ArtifactsPage: React.FC = () => {
         dataIndex: "status",
         key: "status",
         width: 140,
-        render: (s) => s || "-",
+        render: (status: string | undefined) => {
+          if (!status) return <Tag>-</Tag>;
+
+          const colorMap: Record<string, string> = {
+            bosung: "cyan",
+            con: "green",
+            ban: "red",
+          };
+          const labelMap: Record<string, string> = {
+            bosung: "Bổ sung",
+            con: "Còn hàng",
+            ban: "Hết hàng",
+          };
+
+          return (
+            <Tag color={colorMap[status] || "default"}>
+              {labelMap[status] ||
+                status.charAt(0).toUpperCase() + status.slice(1)}
+            </Tag>
+          );
+        },
       },
       {
         key: "action",
-        width: 260,
+        width: 220,
         render: (_: any, record: Artifact) => {
-          // build menu items (antd v5 expects items: MenuProps['items'])
           const items: MenuProps["items"] = [
-            hasPermission("EDIT_ARTIFACT")
-              ? { key: "edit", label: "Sửa", icon: <EditOutlined /> }
-              : null,
-            hasPermission("DELETE_ARTIFACT")
-              ? {
-                  key: "delete",
-                  label: "Xóa",
-                  icon: <DeleteOutlined />,
-                  danger: true,
-                }
-              : null,
             hasPermission("IMPORT_ARTIFACT")
-              ? {
-                  key: "import",
-                  label: "Nhập kho",
-                  icon: <PlusCircleOutlined />,
-                }
+              ? { key: "import", label: "Nhập kho" }
               : null,
             hasPermission("EXPORT_ARTIFACT")
-              ? {
-                  key: "export",
-                  label: "Xuất kho",
-                  icon: <MinusCircleOutlined />,
-                }
+              ? { key: "export", label: "Xuất kho" }
               : null,
             hasPermission("ADJUST_ARTIFACT")
-              ? {
-                  key: "adjust",
-                  label: "Điều chỉnh",
-                  icon: <SlidersOutlined />,
-                }
+              ? { key: "adjust", label: "Điều chỉnh tồn" }
               : null,
-            hasPermission("VIEW_ARTIFACT_TRANSACTIONS")
-              ? { key: "history", label: "Lịch sử", icon: <HistoryOutlined /> }
-              : null,
-            { key: "google", label: "Tìm Google", icon: <SearchOutlined /> },
           ].filter(Boolean) as MenuProps["items"];
 
+          const onMenuClick: MenuProps["onClick"] = ({ key }) => {
+            if (key === "import") openModal("import", record);
+            if (key === "export") openModal("export", record);
+            if (key === "adjust") openModal("adjust", record);
+          };
+
           return (
-            <Space size="small" wrap>
+            <Space
+              size="small"
+              align="center"
+              style={{ display: "flex", minWidth: 180 }}
+            >
               {hasPermission("EDIT_ARTIFACT") && (
                 <Tooltip title="Chỉnh sửa">
                   <Button
@@ -381,72 +361,27 @@ const ArtifactsPage: React.FC = () => {
               )}
 
               {hasPermission("DELETE_ARTIFACT") && (
-                <Tooltip title="Xóa">
-                  <Button
-                    icon={<DeleteOutlined />}
-                    size="small"
-                    danger
-                    onClick={() =>
-                      Modal.confirm({
-                        title: `Xóa "${record.name}"?`,
-                        icon: <DeleteOutlined />,
-                        content: "Thao tác này không thể hoàn tác!",
-                        okType: "danger",
-                        okText: "Xóa",
-                        cancelText: "Hủy",
-                        onOk: async () => {
-                          try {
-                            await artifactApi.remove(record._id);
-                            message.success("Đã xóa hiện vật");
-                            fetchData();
-                          } catch (err: any) {
-                            console.error(err);
-                            message.error(
-                              err?.response?.data?.message || "Xóa thất bại"
-                            );
-                          }
-                        },
-                      })
+                <Popconfirm
+                  title={`Xóa hiện vật "${record.name}"?`}
+                  okText="Xóa"
+                  cancelText="Hủy"
+                  onConfirm={async () => {
+                    try {
+                      await artifactApi.remove(record._id);
+                      message.success("Đã xóa hiện vật");
+                      fetchData();
+                    } catch (err: any) {
+                      console.error(err);
+                      message.error(
+                        err?.response?.data?.message || "Xóa thất bại"
+                      );
                     }
-                  />
-                </Tooltip>
-              )}
-
-              {hasPermission("IMPORT_ARTIFACT") && (
-                <Tooltip title="Nhập kho">
-                  <Button
-                    icon={<PlusCircleOutlined />}
-                    size="small"
-                    onClick={() => openModal("import", record)}
-                  />
-                </Tooltip>
-              )}
-              {hasPermission("EXPORT_ARTIFACT") && (
-                <Tooltip title="Xuất kho">
-                  <Button
-                    icon={<MinusCircleOutlined />}
-                    size="small"
-                    onClick={() => openModal("export", record)}
-                  />
-                </Tooltip>
-              )}
-              {hasPermission("ADJUST_ARTIFACT") && (
-                <Tooltip title="Điều chỉnh">
-                  <Button
-                    icon={<SlidersOutlined />}
-                    size="small"
-                    onClick={() => openModal("adjust", record)}
-                  />
-                </Tooltip>
-              )}
-              {hasPermission("VIEW_ARTIFACT_TRANSACTIONS") && (
-                <Tooltip title="Lịch sử">
-                  <Button
-                    icon={<HistoryOutlined />}
-                    size="small"
-                    onClick={() => openHistory(record)}
-                  />
-                </Tooltip>
+                  }}
+                >
+                  <Tooltip title="Xóa">
+                    <Button icon={<DeleteOutlined />} size="small" danger />
+                  </Tooltip>
+                </Popconfirm>
               )}
 
               <Tooltip title="Tìm hình ảnh & thông tin trên Google">
@@ -457,8 +392,21 @@ const ArtifactsPage: React.FC = () => {
                 />
               </Tooltip>
 
-              <Dropdown menu={{ items }} trigger={["click"]}>
-                <Button icon={<MoreOutlined />} size="small" />
+              {hasPermission("VIEW_ARTIFACT_TRANSACTIONS") && (
+                <Tooltip title="Lịch sử">
+                  <Button
+                    icon={<HistoryOutlined />}
+                    size="small"
+                    onClick={() => openHistory(record)}
+                  />
+                </Tooltip>
+              )}
+
+              <Dropdown
+                menu={{ items, onClick: onMenuClick }}
+                trigger={["click"]}
+              >
+                <Button size="small" icon={<EllipsisOutlined />} />
               </Dropdown>
             </Space>
           );
@@ -487,6 +435,8 @@ const ArtifactsPage: React.FC = () => {
         columns={columns}
         dataSource={filteredData}
         pagination={{ pageSize: 10 }}
+        scroll={{ x: 1200 }} // cho table ngang khi nhiều column
+        size="middle"
       />
 
       <ArtifactFormModal
