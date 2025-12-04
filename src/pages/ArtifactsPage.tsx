@@ -25,6 +25,7 @@ import {
   SearchOutlined,
   PictureOutlined,
   EllipsisOutlined,
+  InfoCircleOutlined,
 } from "@ant-design/icons";
 
 import { artifactApi } from "../api/artifactApi";
@@ -36,8 +37,12 @@ import ArtifactFormModal from "../components/ArtifactFormModal";
 import StockModal from "../components/StockModal";
 import AdjustStockModal from "../components/AdjustStockModal";
 import HistoryModal from "../components/HistoryModal";
+import ArtifactDetailModal from "../components/ArtifactDetailModal";
 
 export type Artifact = {
+  createdBy: any;
+  updatedAt: any;
+  createdAt: any;
   _id: string;
   code: string;
   name: string;
@@ -78,6 +83,7 @@ const ArtifactsPage: React.FC = () => {
   // state
   const [data, setData] = useState<Artifact[]>([]);
   const [loading, setLoading] = useState(false);
+  const [detailOpen, setDetailOpen] = useState(false);
 
   const [modalType, setModalType] = useState<
     "create" | "edit" | "import" | "export" | "adjust" | null
@@ -391,6 +397,16 @@ const ArtifactsPage: React.FC = () => {
                   onClick={() => openGoogleFor(record)}
                 />
               </Tooltip>
+              <Tooltip title="Xem chi tiết">
+                <Button
+                  icon={<InfoCircleOutlined />}
+                  size="small"
+                  onClick={() => {
+                    setSelectedArtifact(record);
+                    setDetailOpen(true);
+                  }}
+                />
+              </Tooltip>
 
               {hasPermission("VIEW_ARTIFACT_TRANSACTIONS") && (
                 <Tooltip title="Lịch sử">
@@ -566,6 +582,12 @@ const ArtifactsPage: React.FC = () => {
           />
         )}
       </Modal>
+
+      <ArtifactDetailModal
+        open={detailOpen}
+        artifactId={selectedArtifact?._id}
+        onClose={() => setDetailOpen(false)}
+      />
 
       <Modal
         open={visionOpen}

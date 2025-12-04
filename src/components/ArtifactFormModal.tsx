@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 // src/components/ArtifactFormModal.tsx
 import React, { useEffect, useState } from "react";
 import {
@@ -97,7 +98,7 @@ const ArtifactFormModal: React.FC<Props> = ({
       setSubmitting(true);
       const values = await form.validateFields();
 
-      const payload = {
+      const payload: any = {
         code: values.code?.trim(),
         name: values.name?.trim(),
         description: values.description?.trim(),
@@ -107,6 +108,19 @@ const ArtifactFormModal: React.FC<Props> = ({
       };
 
       const chosenFile = fileList?.[0]?.originFileObj as File | undefined;
+      if (mode === "create") {
+        const initial = values.initialQuantity;
+        const qty =
+          initial === undefined || initial === "" ? 0 : Number(initial);
+        if (Number.isNaN(qty) || qty < 0) {
+          form.setFields([
+            { name: "initialQuantity", errors: ["Số lượng phải >= 0"] },
+          ]);
+          setSubmitting(false);
+          return;
+        }
+        payload.initialQuantity = qty;
+      }
 
       let saved: Artifact | null = null;
 
@@ -117,11 +131,11 @@ const ArtifactFormModal: React.FC<Props> = ({
           return;
         }
         const res = await artifactApi.update(currentArtifact._id, payload);
-        saved = res.data?.artifact ?? res.data;
+        saved = res.data;
         setCurrentArtifact(saved ?? null);
       } else {
         const res = await artifactApi.create(payload);
-        saved = res.data?.artifact ?? res.data;
+        saved = res.data;
         if (!saved || !saved._id) {
           message.error("Tạo thất bại: server không trả id");
           setSubmitting(false);
@@ -134,9 +148,9 @@ const ArtifactFormModal: React.FC<Props> = ({
         try {
           await artifactApi.uploadImage(saved._id, chosenFile);
           const ref = await artifactApi.get(saved._id);
-          const updated = ref.data?.artifact ?? ref.data;
+          const updated = ref.data;
           setCurrentArtifact(updated ?? null);
-          if (updated?.imageUrl)
+          if (updated?.imageUrl) {
             setFileList([
               {
                 uid: "1",
@@ -145,10 +159,11 @@ const ArtifactFormModal: React.FC<Props> = ({
                 url: updated.imageUrl,
               },
             ]);
+          }
           message.success(
             mode === "create"
-              ? "Tạo + upload ảnh thành công"
-              : "Cập nhật + upload ảnh thành công"
+              ? "Tạo hiện vật thành công"
+              : "Cập nhật thành công"
           );
         } catch (uploadErr) {
           console.error("Upload error:", uploadErr);
@@ -161,20 +176,17 @@ const ArtifactFormModal: React.FC<Props> = ({
       }
 
       if (onSuccess) onSuccess(saved ?? undefined);
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (err: any) {
-      console.error(err);
+      console.error("Save artifact error:", err);
       const backendMsg = err?.response?.data?.message;
       const backendField = err?.response?.data?.field;
 
       if (backendField) {
         form.setFields([
-          {
-            name: backendField,
-            errors: [backendMsg || "Lỗi xác thực từ server"],
-          },
+          { name: backendField, errors: [backendMsg || "Lỗi từ server"] },
         ]);
       }
+
       if (backendField === "code") {
         message.error(backendMsg || "Mã đã tồn tại");
       } else {
@@ -242,11 +254,42 @@ const ArtifactFormModal: React.FC<Props> = ({
               <Input />
             </Form.Item>
 
+            {mode === "create" && (
+              <Form.Item
+                label="Số lượng ban đầu"
+                name="initialQuantity"
+                rules={[
+                  {
+                    validator: (_, value) => {
+                      if (value === undefined || value === "" || value === null)
+                        return Promise.resolve();
+                      const n = Number(value);
+                      if (!Number.isFinite(n) || n < 0)
+                        return Promise.reject(new Error("Số lượng phải >= 0"));
+                      return Promise.resolve();
+                    },
+                  },
+                ]}
+              >
+                <Input type="number" min={0} placeholder="0" />
+              </Form.Item>
+            )}
+
             <Form.Item label="Trạng thái" name="status">
-              <Select placeholder="Chọn trạng thái">
-                <Select.Option value="bosung">Mới bổ sung</Select.Option>
-                <Select.Option value="con">Còn hàng</Select.Option>
-                <Select.Option value="ban">Đã bán / Hết</Select.Option>
+              <Select
+                disabled={mode === "edit"}
+                placeholder="Chọn trạng thái"
+              >
+                {mode === "create" && (
+                  <Select.Option value="bosung">Mới bổ sung</Select.Option>
+                )}
+                {mode === "edit" && (
+                  <>
+                    <Select.Option value="bosung">Mới bổ sung</Select.Option>
+                    <Select.Option value="con">Còn hàng</Select.Option>
+                    <Select.Option value="ban">Đã bán / Hết</Select.Option>
+                  </>
+                )}
               </Select>
             </Form.Item>
           </Form>
@@ -313,10 +356,6 @@ const ArtifactFormModal: React.FC<Props> = ({
               Chọn ảnh
             </Button>
           </Upload>
-          <div style={{ marginTop: 8, fontSize: 12, color: "#666" }}>
-            Nếu bạn chọn ảnh rồi bấm Tạo, hệ thống sẽ tạo hiện vật rồi upload
-            ảnh tự động.
-          </div>
         </div>
       </div>
     </Modal>
