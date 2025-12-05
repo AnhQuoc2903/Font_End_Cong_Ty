@@ -2,6 +2,7 @@
 import React from "react";
 import { Modal, List, Card, Spin, Empty } from "antd";
 import type { GoogleResult } from "../api/aiApi";
+import { PictureOutlined } from "@ant-design/icons";
 
 type Props = {
   open: boolean;
@@ -42,34 +43,53 @@ const GoogleSearchModal: React.FC<Props> = ({
               <Card
                 hoverable
                 cover={
-                  <div
-                    style={{
-                      width: "100%",
-                      height: 160,
-                      overflow: "hidden",
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "center",
-                      background: "#fafafa",
-                    }}
+                  <a
+                    href={item.contextLink}
+                    target="_blank"
+                    rel="noreferrer"
+                    style={{ display: "block" }}
                   >
-                    <img
-                      src={item.imageUrl}
-                      alt={item.title}
+                    <div
                       style={{
                         width: "100%",
-                        height: "100%",
-                        objectFit: "cover",
+                        height: 160,
+                        overflow: "hidden",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        background: "#fafafa",
                       }}
-                    />
-                  </div>
+                    >
+                      {item.imageUrl ? (
+                        <img
+                          src={item.imageUrl}
+                          alt={item.title}
+                          style={{
+                            width: "100%",
+                            height: "100%",
+                            objectFit: "cover",
+                          }}
+                        />
+                      ) : (
+                        <PictureOutlined style={{ fontSize: 40, color: "#ccc" }} />
+                      )}
+                    </div>
+                  </a>
                 }
               >
                 <Card.Meta
-                  title={item.title}
+                  title={
+                    <a
+                      href={item.contextLink}
+                      target="_blank"
+                      rel="noreferrer"
+                    >
+                      {item.title}
+                    </a>
+                  }
                   description={
                     <div style={{ fontSize: 12, color: "#666" }}>
-                      {item.snippet ?? item.contextLink}
+                      {item.snippet || item.contextLink}
                     </div>
                   }
                 />

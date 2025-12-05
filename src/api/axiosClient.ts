@@ -7,6 +7,7 @@ const axiosClient = axios.create({
   withCredentials: true,
 });
 
+// Attach access token
 axiosClient.interceptors.request.use((config) => {
   const token = localStorage.getItem("accessToken");
   if (token) {
@@ -16,6 +17,7 @@ axiosClient.interceptors.request.use((config) => {
   return config;
 });
 
+// Refresh state
 let isRefreshing = false;
 let subscribers: Array<(token: string | null) => void> = [];
 
@@ -27,21 +29,23 @@ function addSubscriber(cb: (token: string | null) => void) {
   subscribers.push(cb);
 }
 
+// Response interceptor
 axiosClient.interceptors.response.use(
   (response) => response,
   (error) => {
     const originalRequest = error.config;
     const status = error?.response?.status;
 
-    if ((status === 401 || status === 403) && !originalRequest._retry) {
+    if ((status === 401 || status === 403) && !originalRequest?._retry) {
       originalRequest._retry = true;
 
       if (isRefreshing) {
         return new Promise((resolve, reject) => {
           addSubscriber((token) => {
             if (token) {
+              originalRequest.headers = originalRequest.headers || {};
               originalRequest.headers.Authorization = `Bearer ${token}`;
-              resolve(axios(originalRequest));
+              resolve(axiosClient.request(originalRequest));
             } else {
               reject(error);
             }
@@ -66,24 +70,33 @@ axiosClient.interceptors.response.use(
           const newAccessToken = res.data.accessToken;
           const newRefreshToken = res.data.refreshToken;
 
+          if (!newAccessToken) {
+            throw new Error("No access token in refresh response");
+          }
+
+          // save tokens + user
           localStorage.setItem("accessToken", newAccessToken);
-          localStorage.setItem("refreshToken", newRefreshToken);
+          if (newRefreshToken)
+            localStorage.setItem("refreshToken", newRefreshToken);
           if (res.data.user)
             localStorage.setItem("user", JSON.stringify(res.data.user));
 
-          originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;
           onRefreshed(newAccessToken);
           isRefreshing = false;
 
-          return axios(originalRequest);
+          originalRequest.headers = originalRequest.headers || {};
+          originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;
+          return axiosClient.request(originalRequest);
         })
         .catch((err) => {
           console.error("Refresh failed", err);
           onRefreshed(null);
           isRefreshing = false;
+
           localStorage.removeItem("accessToken");
           localStorage.removeItem("refreshToken");
           localStorage.removeItem("user");
+
           message.error("Phiên đăng nhập hết hạn. Vui lòng đăng nhập lại.");
           window.location.href = "/login";
           return Promise.reject(err);

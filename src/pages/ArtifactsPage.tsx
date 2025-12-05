@@ -411,7 +411,7 @@ const ArtifactsPage: React.FC = () => {
         columns={columns}
         dataSource={filteredData}
         pagination={{ pageSize: 10 }}
-        scroll={{ x: 1200 }} 
+        scroll={{ x: 1200 }}
         size="middle"
       />
 
@@ -471,12 +471,9 @@ const ArtifactsPage: React.FC = () => {
 
       <GoogleSearchModal
         open={googleOpen}
-        query={
-          `${selectedArtifact?.name ?? ""} ${
-            selectedArtifact?.description ?? ""
-          }`.trim() ||
-          (selectedArtifact?.name ?? "")
-        }
+        query={`${selectedArtifact?.name ?? ""} ${
+          selectedArtifact?.description ?? ""
+        }`}
         loading={googleLoading}
         results={googleResults}
         onClose={() => setGoogleOpen(false)}
