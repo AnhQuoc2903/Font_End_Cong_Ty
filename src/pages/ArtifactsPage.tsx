@@ -3,19 +3,12 @@ import React, { useEffect, useMemo, useRef, useState } from "react";
 import {
   Button,
   Modal,
-  Space,
   Table,
   Form,
   message,
-  List,
-  Tooltip,
   Dropdown,
   type MenuProps,
   Tag,
-  Spin,
-  Card,
-  Popconfirm,
-  Image,
 } from "antd";
 import type { ColumnsType } from "antd/es/table";
 import {
@@ -23,9 +16,11 @@ import {
   DeleteOutlined,
   HistoryOutlined,
   SearchOutlined,
-  PictureOutlined,
   EllipsisOutlined,
   InfoCircleOutlined,
+  PlusCircleOutlined,
+  MinusCircleOutlined,
+  SlidersOutlined,
 } from "@ant-design/icons";
 
 import { artifactApi } from "../api/artifactApi";
@@ -38,6 +33,7 @@ import StockModal from "../components/StockModal";
 import AdjustStockModal from "../components/AdjustStockModal";
 import HistoryModal from "../components/HistoryModal";
 import ArtifactDetailModal from "../components/ArtifactDetailModal";
+import GoogleSearchModal from "../components/GoogleSearchModal";
 
 export type Artifact = {
   createdBy: any;
@@ -62,14 +58,6 @@ type GoogleResult = {
   snippet?: string;
 };
 
-type VisionAnalysis = {
-  labels: string[];
-  entities: string[]; // web entities
-  similarImages: string[];
-  pages: { url?: string; title?: string }[];
-  texts: string[];
-};
-
 type ArtifactTransaction = {
   _id: string;
   type: "IMPORT" | "EXPORT" | "ADJUST";
@@ -80,7 +68,6 @@ type ArtifactTransaction = {
 };
 
 const ArtifactsPage: React.FC = () => {
-  // state
   const [data, setData] = useState<Artifact[]>([]);
   const [loading, setLoading] = useState(false);
   const [detailOpen, setDetailOpen] = useState(false);
@@ -105,12 +92,6 @@ const ArtifactsPage: React.FC = () => {
   const [googleOpen, setGoogleOpen] = useState(false);
   const [googleLoading, setGoogleLoading] = useState(false);
   const [googleResults, setGoogleResults] = useState<GoogleResult[]>([]);
-
-  // Vision modal
-  const [visionOpen, setVisionOpen] = useState(false);
-  const [visionLoading, setVisionLoading] = useState(false);
-  const [visionResult, setVisionResult] = useState<VisionAnalysis | null>(null);
-  const [visionImageUrl, setVisionImageUrl] = useState<string | null>(null);
 
   // history
   const [historyOpen, setHistoryOpen] = useState(false);
@@ -206,22 +187,6 @@ const ArtifactsPage: React.FC = () => {
     }
   };
 
-  const onSelectGoogleImage = async (imageUrl: string) => {
-    setVisionImageUrl(imageUrl);
-    setVisionOpen(true);
-    setVisionLoading(true);
-    setVisionResult(null);
-    try {
-      const res = await aiApi.analyzeImage(imageUrl);
-      setVisionResult(res.data || null);
-    } catch (err) {
-      console.error(err);
-      message.error("Lỗi khi phân tích ảnh");
-      setVisionResult(null);
-    } finally {
-      setVisionLoading(false);
-    }
-  };
   const openHistory = async (artifact: Artifact) => {
     setSelectedArtifact(artifact);
     setHistoryOpen(true);
@@ -327,48 +292,60 @@ const ArtifactsPage: React.FC = () => {
       },
       {
         key: "action",
-        width: 220,
+        width: 72,
+        align: "center",
         render: (_: any, record: Artifact) => {
           const items: MenuProps["items"] = [
+            hasPermission("EDIT_ARTIFACT")
+              ? { key: "edit", label: "Sửa", icon: <EditOutlined /> }
+              : null,
+            hasPermission("DELETE_ARTIFACT")
+              ? { key: "delete", label: "Xóa", icon: <DeleteOutlined /> }
+              : null,
             hasPermission("IMPORT_ARTIFACT")
-              ? { key: "import", label: "Nhập kho" }
+              ? {
+                  key: "import",
+                  label: "Nhập kho",
+                  icon: <PlusCircleOutlined />,
+                }
               : null,
             hasPermission("EXPORT_ARTIFACT")
-              ? { key: "export", label: "Xuất kho" }
+              ? {
+                  key: "export",
+                  label: "Xuất kho",
+                  icon: <MinusCircleOutlined />,
+                }
               : null,
             hasPermission("ADJUST_ARTIFACT")
-              ? { key: "adjust", label: "Điều chỉnh tồn" }
+              ? {
+                  key: "adjust",
+                  label: "Điều chỉnh tồn",
+                  icon: <SlidersOutlined />,
+                }
               : null,
+            hasPermission("VIEW_ARTIFACT_TRANSACTIONS")
+              ? { key: "history", label: "Lịch sử", icon: <HistoryOutlined /> }
+              : null,
+            { key: "google", label: "Tìm Google", icon: <SearchOutlined /> },
+            {
+              key: "detail",
+              label: "Xem chi tiết",
+              icon: <InfoCircleOutlined />,
+            },
           ].filter(Boolean) as MenuProps["items"];
 
-          const onMenuClick: MenuProps["onClick"] = ({ key }) => {
-            if (key === "import") openModal("import", record);
-            if (key === "export") openModal("export", record);
-            if (key === "adjust") openModal("adjust", record);
-          };
-
-          return (
-            <Space
-              size="small"
-              align="center"
-              style={{ display: "flex", minWidth: 180 }}
-            >
-              {hasPermission("EDIT_ARTIFACT") && (
-                <Tooltip title="Chỉnh sửa">
-                  <Button
-                    icon={<EditOutlined />}
-                    size="small"
-                    onClick={() => openModal("edit", record)}
-                  />
-                </Tooltip>
-              )}
-
-              {hasPermission("DELETE_ARTIFACT") && (
-                <Popconfirm
-                  title={`Xóa hiện vật "${record.name}"?`}
-                  okText="Xóa"
-                  cancelText="Hủy"
-                  onConfirm={async () => {
+          const onMenuClick: MenuProps["onClick"] = async ({ key }) => {
+            try {
+              if (key === "edit") {
+                openModal("edit", record);
+              } else if (key === "delete") {
+                Modal.confirm({
+                  title: `Xóa hiện vật "${record.name}"?`,
+                  content: "Hành động này không thể hoàn tác.",
+                  okText: "Xóa",
+                  okType: "danger",
+                  cancelText: "Hủy",
+                  onOk: async () => {
                     try {
                       await artifactApi.remove(record._id);
                       message.success("Đã xóa hiện vật");
@@ -379,49 +356,35 @@ const ArtifactsPage: React.FC = () => {
                         err?.response?.data?.message || "Xóa thất bại"
                       );
                     }
-                  }}
-                >
-                  <Tooltip title="Xóa">
-                    <Button icon={<DeleteOutlined />} size="small" danger />
-                  </Tooltip>
-                </Popconfirm>
-              )}
+                  },
+                });
+              } else if (key === "import") {
+                openModal("import", record);
+              } else if (key === "export") {
+                openModal("export", record);
+              } else if (key === "adjust") {
+                openModal("adjust", record);
+              } else if (key === "history") {
+                openHistory(record);
+              } else if (key === "google") {
+                openGoogleFor(record);
+              } else if (key === "detail") {
+                setSelectedArtifact(record);
+                setDetailOpen(true);
+              }
+            } catch (err) {
+              console.error(err);
+            }
+          };
 
-              <Tooltip title="Tìm hình ảnh & thông tin trên Google">
-                <Button
-                  icon={<SearchOutlined />}
-                  size="small"
-                  onClick={() => openGoogleFor(record)}
-                />
-              </Tooltip>
-              <Tooltip title="Xem chi tiết">
-                <Button
-                  icon={<InfoCircleOutlined />}
-                  size="small"
-                  onClick={() => {
-                    setSelectedArtifact(record);
-                    setDetailOpen(true);
-                  }}
-                />
-              </Tooltip>
-
-              {hasPermission("VIEW_ARTIFACT_TRANSACTIONS") && (
-                <Tooltip title="Lịch sử">
-                  <Button
-                    icon={<HistoryOutlined />}
-                    size="small"
-                    onClick={() => openHistory(record)}
-                  />
-                </Tooltip>
-              )}
-
-              <Dropdown
-                menu={{ items, onClick: onMenuClick }}
-                trigger={["click"]}
-              >
-                <Button size="small" icon={<EllipsisOutlined />} />
-              </Dropdown>
-            </Space>
+          return (
+            <Dropdown
+              menu={{ items, onClick: onMenuClick }}
+              trigger={["click"]}
+              placement="bottomRight"
+            >
+              <Button icon={<EllipsisOutlined />} size="small" />
+            </Dropdown>
           );
         },
       },
@@ -448,7 +411,7 @@ const ArtifactsPage: React.FC = () => {
         columns={columns}
         dataSource={filteredData}
         pagination={{ pageSize: 10 }}
-        scroll={{ x: 1200 }} // cho table ngang khi nhiều column
+        scroll={{ x: 1200 }} 
         size="middle"
       />
 
@@ -506,130 +469,24 @@ const ArtifactsPage: React.FC = () => {
         onClose={() => setHistoryOpen(false)}
       />
 
-      <Modal
+      <GoogleSearchModal
         open={googleOpen}
-        onCancel={() => setGoogleOpen(false)}
-        footer={null}
-        title={`Kết quả Google cho: ${selectedArtifact?.name}`}
-        width={920}
-      >
-        {googleLoading ? (
-          <div style={{ textAlign: "center", padding: 40 }}>
-            <Spin />
-          </div>
-        ) : googleResults.length === 0 ? (
-          <div style={{ textAlign: "center", padding: 40 }}>
-            Không có kết quả
-          </div>
-        ) : (
-          <List
-            grid={{ gutter: 12, column: 3 }}
-            dataSource={googleResults}
-            renderItem={(item) => (
-              <List.Item style={{ cursor: "pointer" }}>
-                <Card
-                  hoverable
-                  onClick={() => onSelectGoogleImage(item.imageUrl)}
-                >
-                  <div
-                    style={{
-                      width: "100%",
-                      height: 150,
-                      overflow: "hidden",
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "center",
-                      background: "#fafafa",
-                    }}
-                  >
-                    {item.imageUrl ? (
-                      <img
-                        src={item.imageUrl}
-                        alt={item.title}
-                        style={{
-                          width: "100%",
-                          height: "100%",
-                          objectFit: "cover",
-                        }}
-                      />
-                    ) : (
-                      <PictureOutlined
-                        style={{ fontSize: 40, color: "#ccc" }}
-                      />
-                    )}
-                  </div>
-                  <Card.Meta
-                    title={
-                      <a
-                        href={item.contextLink}
-                        target="_blank"
-                        rel="noreferrer"
-                      >
-                        {shorten(item.title, 80)}
-                      </a>
-                    }
-                    description={shorten(
-                      item.snippet || item.contextLink || "",
-                      120
-                    )}
-                  />
-                </Card>
-              </List.Item>
-            )}
-          />
-        )}
-      </Modal>
+        query={
+          `${selectedArtifact?.name ?? ""} ${
+            selectedArtifact?.description ?? ""
+          }`.trim() ||
+          (selectedArtifact?.name ?? "")
+        }
+        loading={googleLoading}
+        results={googleResults}
+        onClose={() => setGoogleOpen(false)}
+      />
 
       <ArtifactDetailModal
         open={detailOpen}
         artifactId={selectedArtifact?._id}
         onClose={() => setDetailOpen(false)}
       />
-
-      <Modal
-        open={visionOpen}
-        onCancel={() => setVisionOpen(false)}
-        footer={null}
-        title="Cloudinary AI – Phân tích hình ảnh"
-        width={900}
-      >
-        {visionLoading ? (
-          <Spin
-            style={{ display: "block", textAlign: "center", padding: 40 }}
-          />
-        ) : visionResult ? (
-          <div style={{ display: "flex", gap: 16 }}>
-            <div style={{ minWidth: 360 }}>
-              <Image src={visionImageUrl!} width={360} />
-            </div>
-
-            <div style={{ flex: 1 }}>
-              <h3>🏷 Nhãn AI (Tags)</h3>
-              {visionResult.labels.length
-                ? visionResult.labels.map((t) => <Tag key={t}>{t}</Tag>)
-                : "Không có nhãn"}
-
-              <h3 style={{ marginTop: 16 }}>📝 OCR – Text nhận dạng</h3>
-              {visionResult.texts.length ? (
-                <pre style={{ whiteSpace: "pre-wrap" }}>
-                  {visionResult.texts.join("\n")}
-                </pre>
-              ) : (
-                "Không phát hiện văn bản"
-              )}
-
-              <h3 style={{ marginTop: 16 }}>🖼 Ảnh tương tự</h3>
-              <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
-                {visionResult.similarImages.map((img) => (
-                  <Image key={img} src={img} width={120} height={90} />
-                ))}
-              </div>
-            </div>
-          </div>
-        ) : (
-          "Không có dữ liệu"
-        )}
-      </Modal>
     </>
   );
 };

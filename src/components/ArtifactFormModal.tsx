@@ -276,10 +276,7 @@ const ArtifactFormModal: React.FC<Props> = ({
             )}
 
             <Form.Item label="Trạng thái" name="status">
-              <Select
-                disabled={mode === "edit"}
-                placeholder="Chọn trạng thái"
-              >
+              <Select disabled={mode === "edit"} placeholder="Chọn trạng thái">
                 {mode === "create" && (
                   <Select.Option value="bosung">Mới bổ sung</Select.Option>
                 )}

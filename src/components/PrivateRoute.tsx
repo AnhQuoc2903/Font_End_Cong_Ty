@@ -1,13 +1,16 @@
-import React from 'react';
-import { Navigate } from 'react-router-dom';
-import { useAuth } from '../context/AuthContext';
+import React from "react";
+import { Navigate } from "react-router-dom";
+import { useAuth } from "../context/AuthContext";
 
 type PrivateRouteProps = {
   children: React.ReactElement;
   requiredPermission?: string;
 };
 
-const PrivateRoute: React.FC<PrivateRouteProps> = ({ children, requiredPermission }) => {
+const PrivateRoute: React.FC<PrivateRouteProps> = ({
+  children,
+  requiredPermission,
+}) => {
   const { user, hasPermission, loading } = useAuth();
 
   if (loading) {

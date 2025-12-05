@@ -10,21 +10,32 @@ const LoginPage: React.FC = () => {
     try {
       await login(values.email, values.password);
       window.location.href = "/"; // or navigate
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (e) {
       // handled in login
     }
   };
 
   return (
-    <div style={{ display: "flex", justifyContent: "center", alignItems: "center", minHeight: "80vh" }}>
+    <div
+      style={{
+        display: "flex",
+        justifyContent: "center",
+        alignItems: "center",
+        minHeight: "80vh",
+      }}
+    >
       <Card style={{ width: 400 }}>
         <h2>Đăng nhập</h2>
         <Form layout="vertical" onFinish={onFinish}>
           <Form.Item label="Email" name="email" rules={[{ required: true }]}>
             <Input />
           </Form.Item>
-          <Form.Item label="Mật khẩu" name="password" rules={[{ required: true }]}>
+          <Form.Item
+            label="Mật khẩu"
+            name="password"
+            rules={[{ required: true }]}
+          >
             <Input.Password />
           </Form.Item>
           <Form.Item>

@@ -13,7 +13,7 @@ type User = {
 type AuthContextType = {
   user: User | null;
   accessToken: string | null;
-  loading: boolean;                                 // ← thêm vào type
+  loading: boolean; // ← thêm vào type
   login: (email: string, password: string) => Promise<void>;
   logout: () => Promise<void>;
   hasPermission: (perm: string) => boolean;
@@ -21,7 +21,9 @@ type AuthContextType = {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
+  children,
+}) => {
   const [user, setUser] = useState<User | null>(() => {
     const s = localStorage.getItem("user");
     return s ? JSON.parse(s) : null;
@@ -31,7 +33,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     localStorage.getItem("accessToken")
   );
 
-  const [loading, setLoading] = useState(true);      // ← thêm state loading
+  const [loading, setLoading] = useState(true); // ← thêm state loading
 
   // Khởi tạo user từ localStorage
   useEffect(() => {
@@ -44,7 +46,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       setAccessToken(a);
     }
 
-    setLoading(false);                               // ← done: không còn loading
+    setLoading(false); // ← done: không còn loading
   }, []);
 
   const login = async (email: string, password: string) => {
@@ -60,7 +62,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       setAccessToken(accessToken);
 
       message.success("Đăng nhập thành công");
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (err: any) {
       console.error(err);
       message.error(err?.response?.data?.message || "Đăng nhập thất bại");
@@ -95,7 +97,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       value={{
         user,
         accessToken,
-        loading,          // ← thêm loading vào provider
+        loading, // ← thêm loading vào provider
         login,
         logout,
         hasPermission,

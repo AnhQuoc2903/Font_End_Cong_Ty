@@ -14,7 +14,6 @@ import type { ColumnsType } from "antd/es/table";
 import { roleApi } from "../api/roleApi";
 import { useAuth } from "../context/AuthContext";
 
-
 type Permission = {
   _id: string;
   name: string;
@@ -155,7 +154,7 @@ const RolesPage: React.FC = () => {
       key: "index",
       render: (_text, _record, index) => index + 1,
     },
-    { title: "Tên vai trò", dataIndex: "name", key: "name",width: 100 },
+    { title: "Tên vai trò", dataIndex: "name", key: "name", width: 100 },
     { title: "Mô tả", dataIndex: "description", key: "description" },
     {
       title: "Permissions",
@@ -191,9 +190,9 @@ const RolesPage: React.FC = () => {
         <div style={{ display: "flex", gap: 8 }}>
           <Input
             placeholder="Tìm vai trò theo tên..."
-            allowClear       
+            allowClear
             onChange={(e) => onSearchChange(e.target.value)}
-             style={{ width: 250 }}
+            style={{ width: 250 }}
           />
         </div>
       </Space>

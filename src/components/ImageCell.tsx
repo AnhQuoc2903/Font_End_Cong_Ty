@@ -15,8 +15,8 @@ const ImageCell: React.FC<Props> = ({ src, alt, size = 96, title }) => {
     background: "#f5f7fa",
     borderRadius: 6,
     display: "flex",
-  justifyContent: "center",   
-  alignItems: "center",
+    justifyContent: "center",
+    alignItems: "center",
     color: "#999",
     fontSize: 12,
     border: "1px solid #f0f0f0",
@@ -33,7 +33,11 @@ const ImageCell: React.FC<Props> = ({ src, alt, size = 96, title }) => {
         alt={alt}
         width={size}
         height={Math.round(size * 0.66)}
-        style={{ objectFit: "cover", borderRadius: 6, border: "1px solid #f0f0f0" }}
+        style={{
+          objectFit: "cover",
+          borderRadius: 6,
+          border: "1px solid #f0f0f0",
+        }}
         preview={{ src }}
       />
     </Tooltip>

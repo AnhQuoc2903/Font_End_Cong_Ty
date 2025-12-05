@@ -79,9 +79,8 @@ const HistoryModal: React.FC<Props> = ({
       dataIndex: "createdBy",
       width: 180,
       render: (createdBy?: { fullName?: string; email?: string }) =>
-        createdBy?.fullName || createdBy?.email || (
-          <Text type="secondary">—</Text>
-        ),
+        createdBy?.fullName ||
+        createdBy?.email || <Text type="secondary">—</Text>,
     },
   ];
 

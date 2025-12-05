@@ -31,11 +31,7 @@ const AdjustStockModal: React.FC<Props> = ({
     >
       <Form layout="vertical" form={form}>
         <Form.Item label="Tồn hiện tại">
-          <InputNumber
-            value={currentQty}
-            disabled
-            style={{ width: "100%" }}
-          />
+          <InputNumber value={currentQty} disabled style={{ width: "100%" }} />
         </Form.Item>
         <Form.Item
           label="Tồn mới"

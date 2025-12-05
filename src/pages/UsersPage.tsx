@@ -88,8 +88,6 @@ const UsersPage: React.FC = () => {
     }, 350);
   };
 
-
-
   const openModal = (user?: UserRow) => {
     setEditing(user || null);
     setModalOpen(true);

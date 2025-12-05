@@ -54,21 +54,14 @@ const ArtifactForm: React.FC<Props> = ({ initialValues, onSuccess }) => {
   const onFinish = async (values: FormValues) => {
     try {
       setSubmitting(true);
-
-      // normalize payload: send categoryId (backend expects categoryId)
       const payload = {
         code: values.code?.trim(),
         name: values.name?.trim(),
         description: values.description?.trim(),
         location: values.location?.trim(),
         status: values.status,
-        categoryId: values.categoryId || null, // <-- IMPORTANT: categoryId
+        categoryId: values.categoryId || null,
       };
-
-      // debug log — kiểm tra nhanh payload gửi lên network
-      // (bỏ hoặc comment dòng này khi production)
-    
-      console.log("Artifact payload:", payload);
 
       let res;
       if (initialValues) {
