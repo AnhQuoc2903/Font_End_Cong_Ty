@@ -10,4 +10,12 @@ export const authApi = {
   logout(refreshToken?: string) {
     return axiosNoAuth.post("/auth/logout", { refreshToken });
   },
+
+  forgotPassword(email: string) {
+    return axiosNoAuth.post("/auth/forgot-password", { email });
+  },
+
+  resetPassword(payload: { token: string; password: string }) {
+    return axiosNoAuth.post("/auth/reset-password", payload);
+  },
 };
