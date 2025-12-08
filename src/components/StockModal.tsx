@@ -30,6 +30,7 @@ const StockModal: React.FC<Props> = ({
       onCancel={onCancel}
       onOk={onOk}
       destroyOnClose
+      centered
     >
       <Form layout="vertical" form={form}>
         <Form.Item

@@ -218,7 +218,13 @@ const ArtifactsPage: React.FC = () => {
 
   const columns: ColumnsType<Artifact> = useMemo(
     () => [
-      { title: "STT", key: "index", width: 60, render: (_t, _r, i) => i + 1 },
+      {
+        title: "STT",
+        align: "center",
+        key: "index",
+        width: 60,
+        render: (_t, _r, i) => i + 1,
+      },
       {
         title: "Mã",
         dataIndex: "code",
@@ -230,18 +236,22 @@ const ArtifactsPage: React.FC = () => {
         title: "Tên",
         dataIndex: "name",
         key: "name",
-        width: 140,
-        render: (v) => shorten(v, 36),
+        width: 100,
+        render: (v) => shorten(v, 24),
       },
       {
         title: "Ảnh",
         key: "image",
-        width: 160,
+        dataIndex: "imageUrl",
+        width: 140,
         align: "center",
         render: (_: any, record: Artifact) => (
-          <ImageCell src={record.imageUrl} alt={record.name} size={96} />
+          <div className="flex justify-center">
+            <ImageCell src={record.imageUrl} alt={record.name} size={96} />
+          </div>
         ),
       },
+
       {
         title: "Danh mục",
         key: "category",

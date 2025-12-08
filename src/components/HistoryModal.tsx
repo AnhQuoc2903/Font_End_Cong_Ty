@@ -30,6 +30,7 @@ const HistoryModal: React.FC<Props> = ({
   onClose,
 }) => {
   const columns: ColumnsType<ArtifactTransaction> = [
+    { title: "STT", key: "index", width: 60, render: (_t, _r, i) => i + 1 },
     {
       title: "Loại",
       dataIndex: "type",
@@ -88,6 +89,7 @@ const HistoryModal: React.FC<Props> = ({
     <Modal
       open={open}
       onCancel={onClose}
+      centered
       footer={null}
       width={900}
       title={

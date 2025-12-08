@@ -224,6 +224,7 @@ const ArtifactFormModal: React.FC<Props> = ({
       width={720}
       destroyOnClose
       okText={mode === "create" ? "Tạo" : "Lưu"}
+      centered
     >
       <div style={{ display: "flex", gap: 16 }}>
         <div style={{ flex: 1 }}>

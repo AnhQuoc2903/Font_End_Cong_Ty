@@ -220,6 +220,7 @@ const UsersPage: React.FC = () => {
       <Modal
         title={editing ? "Sửa người dùng" : "Thêm người dùng"}
         open={modalOpen}
+        centered
         onCancel={() => setModalOpen(false)}
         onOk={() => form.submit()}
         destroyOnClose

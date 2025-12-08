@@ -212,6 +212,7 @@ const CategoriesPage: React.FC = () => {
       <Modal
         open={modalOpen}
         title={editing ? "Sửa danh mục" : "Thêm danh mục"}
+        centered
         onCancel={() => setModalOpen(false)}
         onOk={() => form.submit()}
         destroyOnClose

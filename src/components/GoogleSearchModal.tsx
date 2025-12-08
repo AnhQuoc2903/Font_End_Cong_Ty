@@ -25,6 +25,7 @@ const GoogleSearchModal: React.FC<Props> = ({
       title={`Kết quả tìm kiếm: "${query}"`}
       onCancel={onClose}
       footer={null}
+      centered
       width={900}
       bodyStyle={{ padding: 12 }}
     >

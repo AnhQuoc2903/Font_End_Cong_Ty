@@ -4,42 +4,63 @@ import { Image, Tooltip } from "antd";
 type Props = {
   src?: string | null;
   alt?: string;
-  size?: number; // square size px
+  size?: number; // chiều rộng px
   title?: string;
+  className?: string;
 };
 
-const ImageCell: React.FC<Props> = ({ src, alt, size = 96, title }) => {
-  const placeholderStyle: React.CSSProperties = {
-    width: size,
-    height: size * 0.66,
-    background: "#f5f7fa",
-    borderRadius: 6,
-    display: "flex",
-    justifyContent: "center",
-    alignItems: "center",
-    color: "#999",
-    fontSize: 12,
-    border: "1px solid #f0f0f0",
-  };
+const ImageCell: React.FC<Props> = ({
+  src,
+  alt,
+  size = 96,
+  title,
+  className,
+}) => {
+  const height = Math.round(size * 0.66);
+
+  // Style chung cho container (có ảnh hoặc không)
+  const containerClass = [
+    "inline-flex items-center justify-center",
+    "rounded-md border bg-white shadow-sm overflow-hidden",
+    "hover:shadow-md transition-shadow duration-150",
+    className,
+  ]
+    .filter(Boolean)
+    .join(" ");
 
   if (!src) {
-    return <div style={placeholderStyle}>Chưa có ảnh</div>;
+    // Placeholder khi chưa có ảnh
+    return (
+      <div
+        className={[
+          "flex items-center justify-center rounded-md border border-dashed",
+          "border-gray-200 bg-gray-50 text-[11px] text-gray-400",
+          "px-2",
+          className,
+        ]
+          .filter(Boolean)
+          .join(" ")}
+        style={{ width: size, height }}
+      >
+        Chưa có ảnh
+      </div>
+    );
   }
 
   return (
     <Tooltip title={title || alt}>
-      <Image
-        src={src}
-        alt={alt}
-        width={size}
-        height={Math.round(size * 0.66)}
-        style={{
-          objectFit: "cover",
-          borderRadius: 6,
-          border: "1px solid #f0f0f0",
-        }}
-        preview={{ src }}
-      />
+      <div className={containerClass} style={{ width: size, height }}>
+        <Image
+          src={src}
+          alt={alt}
+          width={size}
+          height={height}
+          className="object-cover"
+          // Đảm bảo Image không phá layout container
+          rootClassName="!flex !w-full !h-full"
+          preview={{ src }}
+        />
+      </div>
     </Tooltip>
   );
 };

@@ -209,6 +209,7 @@ const RolesPage: React.FC = () => {
         open={modalOpen}
         onCancel={() => setModalOpen(false)}
         onOk={() => form.submit()}
+        centered
         destroyOnClose
         title={editing ? "Sửa vai trò" : "Tạo vai trò"}
       >

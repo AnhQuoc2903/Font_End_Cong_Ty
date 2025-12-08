@@ -85,6 +85,7 @@ const ArtifactDetailModal: React.FC<Props> = ({
       open={open}
       onCancel={onClose}
       footer={null}
+      centered
       width={800}
       bodyStyle={{ padding: 20 }}
       title={
