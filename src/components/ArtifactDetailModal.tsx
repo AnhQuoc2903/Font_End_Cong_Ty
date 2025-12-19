@@ -1,5 +1,4 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-// src/components/ArtifactDetailModal.tsx
 import React, { useEffect, useState } from "react";
 import {
   Modal,
@@ -25,32 +24,26 @@ import { format } from "date-fns";
 
 const { Paragraph, Text, Title } = Typography;
 
-type Props = {
-  open: boolean;
-  artifactId?: string | null;
-  onClose: () => void;
-  onEdit?: (artifact: ArtifactType) => void;
-  onRefresh?: () => void;
-  onOpenImport?: (artifact: ArtifactType) => void;
-  onOpenExport?: (artifact: ArtifactType) => void;
-  onDelete?: (id: string) => Promise<void>;
-};
-
 const MetaRow: React.FC<{ label: string; value?: React.ReactNode }> = ({
   label,
   value,
 }) => (
-  <div style={{ marginBottom: 12 }}>
-    <Text type="secondary" style={{ fontSize: 12 }}>
+  <div style={{ marginBottom: 14 }}>
+    <Text
+      type="secondary"
+      style={{
+        fontSize: 12,
+        textTransform: "uppercase",
+        letterSpacing: 0.4,
+      }}
+    >
       {label}
     </Text>
-    <div style={{ fontSize: 15, fontWeight: 500, marginTop: 4 }}>
-      {value ?? "-"}
-    </div>
+    <div style={{ fontSize: 16, fontWeight: 600, marginTop: 4 }}>{value ?? "-"}</div>
   </div>
 );
 
-const ArtifactDetailModal: React.FC<Props> = ({
+const ArtifactDetailModal: React.FC<any> = ({
   open,
   artifactId,
   onClose,
@@ -59,12 +52,8 @@ const ArtifactDetailModal: React.FC<Props> = ({
   const [artifact, setArtifact] = useState<ArtifactType | null>(null);
 
   useEffect(() => {
-    if (open && artifactId) {
-      load();
-    } else {
-      setArtifact(null);
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    if (open && artifactId) load();
+    else setArtifact(null);
   }, [open, artifactId]);
 
   const load = async () => {
@@ -86,21 +75,20 @@ const ArtifactDetailModal: React.FC<Props> = ({
       onCancel={onClose}
       footer={null}
       centered
-      width={800}
-      bodyStyle={{ padding: 20 }}
+      width={820}
+      style={{
+        top: 20,
+      }}
+      bodyStyle={{
+        padding: 0,
+        background: "#f9fafc",
+        borderRadius: 18,
+      }}
       title={
         artifact ? (
           <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-            <Title
-              level={4}
-              style={{
-                margin: 0,
-                display: "flex",
-                alignItems: "center",
-                gap: 8,
-              }}
-            >
-              <span>Thông tin: {artifact.name}</span>
+            <Title level={4} style={{ margin: 0 }}>
+              {artifact.name}
             </Title>
           </div>
         ) : (
@@ -109,117 +97,107 @@ const ArtifactDetailModal: React.FC<Props> = ({
       }
     >
       {loading ? (
-        <div style={{ textAlign: "center", padding: 40 }}>
+        <div style={{ textAlign: "center", padding: 50 }}>
           <Spin size="large" />
         </div>
       ) : !artifact ? (
-        <div style={{ padding: 24, textAlign: "center", color: "#8c8c8c" }}>
+        <div style={{ padding: 40, textAlign: "center", color: "#8c8c8c" }}>
           Không có dữ liệu
         </div>
       ) : (
-        <>
-          {/* Ảnh ở trên */}
+        <div style={{ padding: 20 }}>
+          {/* --- ẢNH --- */}
           <Card
             style={{
               borderRadius: 16,
-              marginBottom: 20,
-              boxShadow: "0 6px 16px rgba(0,0,0,0.08)",
               overflow: "hidden",
-              border: "1px solid #f0f0f0",
+              marginBottom: 20,
+              boxShadow: "0 6px 20px rgba(0,0,0,0.12)",
+              border: "none",
             }}
             bodyStyle={{ padding: 0 }}
           >
             {artifact.imageUrl ? (
-              <div
+              <Image
+                src={artifact.imageUrl}
+                alt={artifact.name}
+                width="100%"
+                height={380}
                 style={{
-                  width: "100%",
-                  height: 380,
-                  background: "linear-gradient(to bottom, #f0f5ff, #ffffff)",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
+                  objectFit: "cover",
+                  transition: "0.35s ease",
                 }}
-              >
-                <Image
-                  src={artifact.imageUrl}
-                  alt={artifact.name}
-                  width="100%"
-                  height="100%"
-                  style={{
-                    objectFit: "cover",
-                    borderRadius: 0,
-                    transition: "transform 0.3s ease",
-                  }}
-                  preview={{
-                    mask: (
-                      <div
-                        style={{
-                          color: "#fff",
-                          fontWeight: "bold",
-                          fontSize: 16,
-                          background: "rgba(0,0,0,0.4)",
-                          padding: "4px 12px",
-                          borderRadius: 4,
-                        }}
-                      >
-                        Xem ảnh
-                      </div>
-                    ),
-                  }}
-                  placeholder={
+                preview={{
+                  mask: (
                     <div
                       style={{
-                        height: 300,
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "center",
+                        color: "#fff",
+                        fontWeight: 600,
+                        fontSize: 16,
+                        background: "rgba(0,0,0,0.4)",
+                        padding: "6px 14px",
+                        borderRadius: 6,
                       }}
                     >
-                      <Spin />
+                      Xem ảnh
                     </div>
-                  }
-                />
-              </div>
+                  ),
+                }}
+              />
             ) : (
               <div
                 style={{
-                  width: "100%",
-                  height: 300,
-                  background: "#f5f5f5",
+                  height: 360,
+                  background: "#f2f2f2",
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "center",
                   flexDirection: "column",
-                  color: "#999",
+                  color: "#aaa",
                 }}
               >
-                <HistoryOutlined style={{ fontSize: 40 }} />
-                <div style={{ marginTop: 10, fontSize: 14 }}>Chưa có ảnh</div>
+                <HistoryOutlined style={{ fontSize: 50 }} />
+                <div style={{ marginTop: 10 }}>Chưa có ảnh</div>
               </div>
             )}
           </Card>
 
-          {/* Thông tin chi tiết bên dưới */}
+          {/* --- MÔ TẢ--- */}
           <Card
             style={{
-              borderRadius: 12,
-              boxShadow: "0 2px 8px rgba(0,0,0,0.06)",
+              borderRadius: 14,
+              marginBottom: 20,
+              boxShadow: "0 2px 10px rgba(0,0,0,0.08)",
             }}
-            bodyStyle={{ padding: 16 }}
+            bodyStyle={{ padding: 20 }}
           >
-            <Paragraph style={{ marginBottom: 12 }}>
+            <Title level={5} style={{ marginBottom: 12 }}>
+              Mô tả hiện vật
+            </Title>
+            <Paragraph style={{ marginBottom: 0 }}>
               {artifact.description ? (
                 <Text style={{ whiteSpace: "pre-wrap", lineHeight: 1.6 }}>
-                  {artifact.description}
+                  {artifact.category?.description ?? "-"}
                 </Text>
               ) : (
                 <Text type="secondary">Không có mô tả</Text>
               )}
             </Paragraph>
+          </Card>
 
-            <Divider />
+          {/* --- THÔNG TIN CHI TIẾT --- */}
+          <Card
+            style={{
+              borderRadius: 14,
+              boxShadow: "0 2px 10px rgba(0,0,0,0.08)",
+            }}
+            bodyStyle={{ padding: 20 }}
+          >
+            <Title level={5} style={{ marginBottom: 20 }}>
+              Thông tin chi tiết
+            </Title>
 
-            <Row gutter={16}>
+            <Row gutter={[24, 12]}>
               <Col span={12}>
                 <MetaRow
                   label="Danh mục"
@@ -244,9 +222,10 @@ const ArtifactDetailModal: React.FC<Props> = ({
                   value={<Text strong>{artifact.quantityCurrent ?? 0}</Text>}
                 />
               </Col>
+
               <Col span={12}>
                 <MetaRow
-                  label="Mã"
+                  label="Mã hiện vật"
                   value={
                     <>
                       <BarcodeOutlined style={{ marginRight: 6 }} />
@@ -254,6 +233,7 @@ const ArtifactDetailModal: React.FC<Props> = ({
                     </>
                   }
                 />
+
                 <MetaRow
                   label="Trạng thái"
                   value={
@@ -268,6 +248,7 @@ const ArtifactDetailModal: React.FC<Props> = ({
                     )
                   }
                 />
+
                 <MetaRow
                   label="Ngày tạo"
                   value={
@@ -277,7 +258,7 @@ const ArtifactDetailModal: React.FC<Props> = ({
                   }
                 />
                 <MetaRow
-                  label="Cập nhật"
+                  label="Cập nhật gần nhất"
                   value={
                     artifact.updatedAt
                       ? format(new Date(artifact.updatedAt), "yyyy-MM-dd HH:mm")
@@ -287,18 +268,17 @@ const ArtifactDetailModal: React.FC<Props> = ({
               </Col>
             </Row>
 
-            <Divider />
+            <Divider style={{ margin: "14px 0" }} />
 
             <Text type="secondary" style={{ fontSize: 12 }}>
               ID:{" "}
               {(artifact as any).id ??
                 (artifact as any)._id ??
-                (artifact as any).artifactId ??
                 artifact.code ??
                 "N/A"}
             </Text>
           </Card>
-        </>
+        </div>
       )}
     </Modal>
   );

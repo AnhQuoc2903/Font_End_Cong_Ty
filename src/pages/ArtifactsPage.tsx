@@ -34,6 +34,7 @@ import AdjustStockModal from "../components/AdjustStockModal";
 import HistoryModal from "../components/HistoryModal";
 import ArtifactDetailModal from "../components/ArtifactDetailModal";
 import GoogleSearchModal from "../components/GoogleSearchModal";
+import { useSearchParams } from "react-router-dom";
 
 export type Artifact = {
   createdBy: any;
@@ -48,7 +49,8 @@ export type Artifact = {
   status?: string;
   imageUrl?: string | null;
   imagePublicId?: string | null;
-  category?: { _id?: string; name?: string } | null;
+  category?: { _id?: string; name?: string, description?: string;
+ } | null;
 };
 
 type GoogleResult = {
@@ -97,6 +99,15 @@ const ArtifactsPage: React.FC = () => {
   const [historyOpen, setHistoryOpen] = useState(false);
   const [historyLoading, setHistoryLoading] = useState(false);
   const [history, setHistory] = useState<ArtifactTransaction[]>([]);
+
+  // pagination sync with URL
+  const [searchParams, setSearchParams] = useSearchParams();
+
+  const page = parseInt(searchParams.get("page") || "1", 10);
+
+  const handleTableChange = (pagination: any) => {
+    setSearchParams({ page: pagination.current.toString() });
+  };
 
   // fetch data
   const fetchData = async () => {
@@ -420,7 +431,11 @@ const ArtifactsPage: React.FC = () => {
         loading={loading}
         columns={columns}
         dataSource={filteredData}
-        pagination={{ pageSize: 10 }}
+        onChange={handleTableChange}
+        pagination={{
+          current: page,
+          pageSize: 10,
+        }}
         scroll={{ x: 1200 }}
         size="middle"
       />

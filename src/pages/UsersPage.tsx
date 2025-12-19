@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import React, { useEffect, useRef, useState } from "react";
 import {
   Button,
@@ -15,6 +16,7 @@ import type { ColumnsType } from "antd/es/table";
 import { userApi } from "../api/userApi";
 import { roleApi } from "../api/roleApi";
 import { useAuth } from "../context/AuthContext";
+import { useSearchParams } from "react-router-dom";
 
 type Role = { _id: string; name: string };
 
@@ -33,6 +35,7 @@ const UsersPage: React.FC = () => {
 
   const [modalOpen, setModalOpen] = useState(false);
   const [editing, setEditing] = useState<UserRow | null>(null);
+  const [searchParams, setSearchParams] = useSearchParams();
 
   const [form] = Form.useForm();
   const { hasPermission } = useAuth();
@@ -58,6 +61,12 @@ const UsersPage: React.FC = () => {
     } finally {
       setLoading(false);
     }
+  };
+
+  const page = parseInt(searchParams.get("page") || "1", 10);
+
+  const handleTableChange = (pagination: any) => {
+    setSearchParams({ page: pagination.current.toString() });
   };
 
   const searchUsers = async (query = "") => {
@@ -215,7 +224,11 @@ const UsersPage: React.FC = () => {
         loading={loading}
         dataSource={data}
         columns={columns}
-        pagination={{ pageSize: 10 }}
+        onChange={handleTableChange}
+        pagination={{
+          current: page,
+          pageSize: 10,
+        }}
       />
       <Modal
         title={editing ? "Sửa người dùng" : "Thêm người dùng"}
@@ -223,7 +236,7 @@ const UsersPage: React.FC = () => {
         centered
         onCancel={() => setModalOpen(false)}
         onOk={() => form.submit()}
-        destroyOnClose
+        maskClosable={false}
       >
         <Form layout="vertical" form={form} onFinish={onFinish}>
           <Form.Item
@@ -279,15 +292,29 @@ const UsersPage: React.FC = () => {
             </>
           )}
 
-          <Form.Item label="Họ tên" name="fullName">
+          <Form.Item
+            label="Họ tên"
+            name="fullName"
+            rules={[{ required: true, message: "Vui nhập tên" }]}
+          >
             <Input />
           </Form.Item>
 
-          <Form.Item label="Vai trò" name="roleIds">
+          <Form.Item
+            label="Vai trò"
+            name="roleIds"
+            rules={[
+              { required: true, message: "Vui vòng thêm ít nhất 1 vai trò" },
+            ]}
+          >
             <Select
               mode="multiple"
+              showSearch={false}
               placeholder="Chọn vai trò"
-              options={roles.map((r) => ({ label: r.name, value: r._id }))}
+              options={roles.map((r) => ({
+                label: r.name,
+                value: r._id,
+              }))}
             />
           </Form.Item>
 

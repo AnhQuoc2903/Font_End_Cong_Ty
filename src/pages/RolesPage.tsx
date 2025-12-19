@@ -13,6 +13,7 @@ import {
 import type { ColumnsType } from "antd/es/table";
 import { roleApi } from "../api/roleApi";
 import { useAuth } from "../context/AuthContext";
+import { useSearchParams } from "react-router-dom";
 
 type Permission = {
   _id: string;
@@ -32,6 +33,7 @@ const RolesPage: React.FC = () => {
   const [data, setData] = useState<RoleRow[]>([]);
   const [perms, setPerms] = useState<Permission[]>([]);
   const [loading, setLoading] = useState(false);
+   const [searchParams, setSearchParams] = useSearchParams();
 
   const [modalOpen, setModalOpen] = useState(false);
   const [editing, setEditing] = useState<RoleRow | null>(null);
@@ -157,7 +159,7 @@ const RolesPage: React.FC = () => {
     { title: "Tên vai trò", dataIndex: "name", key: "name", width: 100 },
     { title: "Mô tả", dataIndex: "description", key: "description" },
     {
-      title: "Permissions",
+      title: "Quyền",
       key: "perms",
       render: (_, r) =>
         (r.permissions || []).map((p) => <Tag key={p._id}>{p.name}</Tag>),
@@ -178,6 +180,12 @@ const RolesPage: React.FC = () => {
         ) : null,
     },
   ];
+
+  const page = parseInt(searchParams.get("page") || "1", 10);
+
+  const handleTableChange = (pagination: any) => {
+    setSearchParams({ page: pagination.current.toString() });
+  };
 
   return (
     <>
@@ -202,7 +210,11 @@ const RolesPage: React.FC = () => {
         loading={loading}
         dataSource={data}
         columns={columns}
-        pagination={{ pageSize: 10 }}
+        onChange={handleTableChange}
+        pagination={{
+          current: page,
+          pageSize: 10,
+        }}
       />
 
       <Modal
@@ -225,9 +237,16 @@ const RolesPage: React.FC = () => {
             <Input />
           </Form.Item>
 
-          <Form.Item name="permissionIds" label="Permissions">
+          <Form.Item
+            name="permissionIds"
+            label="Permissions"
+            rules={[
+              { required: true, message: "Vui lòng thêm ít nhất 1 quyền" },
+            ]}
+          >
             <Select
               mode="multiple"
+              showSearch={false}
               placeholder="Chọn permissions"
               options={perms.map((p) => ({
                 label: `${p.group ? `${p.group} - ` : ""}${p.name}`,

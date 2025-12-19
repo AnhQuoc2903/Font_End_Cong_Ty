@@ -5,6 +5,7 @@ import type { ColumnsType } from "antd/es/table";
 import { categoryApi } from "../api/categoryApi";
 import type { Category } from "../api/categoryApi";
 import { useAuth } from "../context/AuthContext";
+import { useSearchParams } from "react-router-dom";
 
 const removeVietnameseTones = (str = "") => {
   if (!str) return "";
@@ -36,6 +37,13 @@ const CategoriesPage: React.FC = () => {
   // search state
   const [q, setQ] = useState("");
   const debounceRef = useRef<number | undefined>(undefined);
+   const [searchParams, setSearchParams] = useSearchParams();
+  
+    const page = parseInt(searchParams.get("page") || "1", 10);
+  
+    const handleTableChange = (pagination: any) => {
+      setSearchParams({ page: pagination.current.toString() });
+    };
 
   // Fetch data once and keep original in allData
   const fetchData = async () => {
@@ -206,7 +214,11 @@ const CategoriesPage: React.FC = () => {
         columns={columns}
         dataSource={data}
         loading={loading}
-        pagination={{ pageSize: 10 }}
+        onChange={handleTableChange}
+        pagination={{
+          current: page,
+          pageSize: 10,
+        }}
       />
 
       <Modal
