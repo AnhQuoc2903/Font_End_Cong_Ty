@@ -1,6 +1,6 @@
 import axios from "axios";
 
 export const axiosNoAuth = axios.create({
-  baseURL: "http://localhost:4000/api",
+  baseURL: import.meta.env.VITE_API_URL,
   withCredentials: true, // nếu bạn dùng cookie-based change accordingly
 });
