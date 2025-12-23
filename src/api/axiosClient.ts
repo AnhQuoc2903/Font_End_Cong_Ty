@@ -9,7 +9,7 @@ const axiosClient = axios.create({
 
 // Attach access token
 axiosClient.interceptors.request.use((config) => {
-  const token = localStorage.getItem("accessToken");
+  const token = sessionStorage.getItem("accessToken");
   if (token) {
     config.headers = config.headers || {};
     config.headers.Authorization = `Bearer ${token}`;
@@ -54,7 +54,7 @@ axiosClient.interceptors.response.use(
       }
 
       isRefreshing = true;
-      const refreshToken = localStorage.getItem("refreshToken");
+      const refreshToken = sessionStorage.getItem("refreshToken");
       if (!refreshToken) {
         localStorage.removeItem("accessToken");
         localStorage.removeItem("refreshToken");
@@ -75,11 +75,11 @@ axiosClient.interceptors.response.use(
           }
 
           // save tokens + user
-          localStorage.setItem("accessToken", newAccessToken);
+          sessionStorage.setItem("accessToken", newAccessToken);
           if (newRefreshToken)
-            localStorage.setItem("refreshToken", newRefreshToken);
+            sessionStorage.setItem("refreshToken", newRefreshToken);
           if (res.data.user)
-            localStorage.setItem("user", JSON.stringify(res.data.user));
+            sessionStorage.setItem("user", JSON.stringify(res.data.user));
 
           onRefreshed(newAccessToken);
           isRefreshing = false;
@@ -93,9 +93,9 @@ axiosClient.interceptors.response.use(
           onRefreshed(null);
           isRefreshing = false;
 
-          localStorage.removeItem("accessToken");
-          localStorage.removeItem("refreshToken");
-          localStorage.removeItem("user");
+          sessionStorage.removeItem("accessToken");
+          sessionStorage.removeItem("refreshToken");
+          sessionStorage.removeItem("user");
 
           message.error("Phiên đăng nhập hết hạn. Vui lòng đăng nhập lại.");
           window.location.href = "/login";

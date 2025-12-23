@@ -22,18 +22,25 @@ type AuthContextType = {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
+  children,
+}) => {
   const [user, setUser] = useState<User | null>(() => {
-    const s = localStorage.getItem("user");
+    const s = sessionStorage.getItem("user");
+
     return s ? JSON.parse(s) : null;
   });
-  const [accessToken, setAccessToken] = useState<string | null>(() => localStorage.getItem("accessToken"));
+  const [accessToken, setAccessToken] = useState<string | null>(() =>
+    sessionStorage.getItem("accessToken")
+  );
+
   const [loading, setLoading] = useState(true);
 
   // restore tokens/user from localStorage at startup
   useEffect(() => {
-    const u = localStorage.getItem("user");
-    const a = localStorage.getItem("accessToken");
+    const u = sessionStorage.getItem("user");
+    const a = sessionStorage.getItem("accessToken");
+
     if (u && a) {
       setUser(JSON.parse(u));
       setAccessToken(a);
@@ -48,9 +55,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     try {
       const res = await authApi.login({ email, password });
       const { accessToken, refreshToken, user } = res.data;
-      localStorage.setItem("accessToken", accessToken);
-      localStorage.setItem("refreshToken", refreshToken);
-      localStorage.setItem("user", JSON.stringify(user));
+      sessionStorage.setItem("accessToken", accessToken);
+      sessionStorage.setItem("refreshToken", refreshToken);
+      sessionStorage.setItem("user", JSON.stringify(user));
+
       setUser(user);
       setAccessToken(accessToken);
       message.success("Đăng nhập thành công");
@@ -68,9 +76,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     } catch (e) {
       console.warn("logout api failed", e);
     } finally {
-      localStorage.removeItem("accessToken");
-      localStorage.removeItem("refreshToken");
-      localStorage.removeItem("user");
+      sessionStorage.removeItem("accessToken");
+      sessionStorage.removeItem("refreshToken");
+      sessionStorage.removeItem("user");
+
       setUser(null);
       setAccessToken(null);
       window.location.href = "/login";
@@ -82,7 +91,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   return (
-    <AuthContext.Provider value={{ user, accessToken, loading, login, logout, hasPermission }}>
+    <AuthContext.Provider
+      value={{ user, accessToken, loading, login, logout, hasPermission }}
+    >
       {children}
     </AuthContext.Provider>
   );
