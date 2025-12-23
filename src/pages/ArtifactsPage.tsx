@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { Button, Modal, Form, message, Card, Space, Typography } from "antd";
@@ -9,16 +8,16 @@ import { aiApi } from "../api/aiApi";
 import { useAuth } from "../context/AuthContext";
 import { useSearchParams } from "react-router-dom";
 
-import ArtifactFormModal from "../components/ArtifactFormModal";
-import StockModal from "../components/StockModal";
-import AdjustStockModal from "../components/AdjustStockModal";
-import HistoryModal from "../components/HistoryModal";
-import ArtifactDetailModal from "../components/ArtifactDetailModal";
-import GoogleSearchModal from "../components/GoogleSearchModal";
-import { ArtifactStatsCards } from "../components/ArtifactStatsCards";
-import SearchFilterBar from "../components/ArtifactFilterBar";
-import { ArtifactTable } from "../components/ArtifactTable";
-import type { Artifact, GoogleResult, ArtifactTransaction } from "../types";
+import ArtifactFormModal from "../components/artifact/ArtifactFormModal";
+import StockModal from "../components/artifact/StockModal";
+import AdjustStockModal from "../components/artifact/AdjustStockModal";
+import HistoryModal from "../components/artifact/HistoryModal";
+import ArtifactDetailModal from "../components/artifact/ArtifactDetailModal";
+import GoogleSearchModal from "../components/artifact//GoogleSearchModal";
+import { ArtifactStatsCards } from "../components/artifact/ArtifactStatsCards";
+import SearchFilterBar from "../components/artifact/ArtifactFilterBar";
+import { ArtifactTable } from "../components/artifact/ArtifactTable";
+import type { Artifact, GoogleResult, ArtifactTransaction } from "../components/artifact/types";
 
 const { Title, Text } = Typography;
 

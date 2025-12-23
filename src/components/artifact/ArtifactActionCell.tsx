@@ -12,7 +12,7 @@ import {
   UploadOutlined,
   SlidersOutlined,
 } from "@ant-design/icons";
-import type { Artifact } from "../types";
+import type { Artifact } from "./types";
 
 type Props = {
   record: Artifact;

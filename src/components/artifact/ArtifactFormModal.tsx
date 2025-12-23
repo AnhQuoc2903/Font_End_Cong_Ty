@@ -29,8 +29,8 @@ import {
 } from "@ant-design/icons";
 import type { UploadFile } from "antd/es/upload/interface";
 
-import { artifactApi } from "../api/artifactApi";
-import { categoryApi } from "../api/categoryApi";
+import { artifactApi } from "../../api/artifactApi";
+import { categoryApi } from "../../api/categoryApi";
 
 /* ================= TYPES ================= */
 

@@ -14,7 +14,11 @@ export type Artifact = {
     url: string;
     publicId: string;
   }[];
-  category?: { _id?: string; name?: string; description?: string } | null;
+  category?: {
+    _id?: string;
+    name?: string;
+    description?: string;
+  } | null;
 };
 
 export type GoogleResult = {

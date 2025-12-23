@@ -1,6 +1,7 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 // src/pages/LoginPage.tsx
 import React, { useState } from "react";
-import { Button, Form, Input, Card, Typography, message } from "antd";
+import { Button, Form, Input, Card, Typography } from "antd";
 import { useNavigate, Link } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 import {
@@ -24,9 +25,8 @@ const LoginPage: React.FC = () => {
       setSubmitting(true);
       await login(values.email, values.password);
       navigate("/dashboard");
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    } catch (err) {
-      message.error("Đăng nhập thất bại. Vui lòng kiểm tra lại thông tin!");
+    } catch (err: any) {
+      console.error(err);
     } finally {
       setSubmitting(false);
     }

@@ -2,7 +2,7 @@ import React from "react";
 import { Table, Tag, Typography, Badge, Avatar, Tooltip } from "antd";
 import type { ColumnsType, TablePaginationConfig } from "antd/es/table";
 import { PictureOutlined } from "@ant-design/icons";
-import type { Artifact } from "../types";
+import type { Artifact } from "./types";
 import ArtifactActionCell from "./ArtifactActionCell";
 
 const { Text } = Typography;
@@ -235,3 +235,5 @@ export const ArtifactTable: React.FC<ArtifactTableProps> = ({
     />
   );
 };
+
+export default ArtifactTable;

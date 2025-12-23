@@ -27,8 +27,8 @@ import {
   InfoCircleOutlined,
   DownOutlined,
 } from "@ant-design/icons";
-import { artifactApi } from "../api/artifactApi";
-import type { Artifact as ArtifactType } from "../types";
+import { artifactApi } from "../../api/artifactApi";
+import type { Artifact as ArtifactType } from "./types";
 import { format } from "date-fns";
 
 const { Paragraph, Text, Title } = Typography;

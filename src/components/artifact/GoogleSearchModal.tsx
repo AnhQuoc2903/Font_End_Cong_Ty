@@ -1,7 +1,7 @@
 // src/components/GoogleSearchModal.tsx
 import React from "react";
 import { Modal, List, Card, Spin, Empty } from "antd";
-import type { GoogleResult } from "../api/aiApi";
+import type { GoogleResult } from "../../api/aiApi";
 import { PictureOutlined } from "@ant-design/icons";
 
 type Props = {

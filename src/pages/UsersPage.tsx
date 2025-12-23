@@ -2,24 +2,32 @@
 import React, { useEffect, useRef, useState } from "react";
 import {
   Button,
-  Form,
-  Input,
   Modal,
-  Select,
   Space,
-  Switch,
-  Table,
-  Tag,
   message,
+  Card,
+  Row,
+  Col,
+  Input,
+  Typography,
+  Form,
 } from "antd";
-import type { ColumnsType } from "antd/es/table";
+import {
+  PlusOutlined,
+  SearchOutlined,
+  EditOutlined,
+  PlusOutlined as PlusOutlinedIcon,
+} from "@ant-design/icons";
 import { userApi } from "../api/userApi";
 import { roleApi } from "../api/roleApi";
 import { useAuth } from "../context/AuthContext";
 import { useSearchParams } from "react-router-dom";
+import UserTable from "../components/users/UserTable";
+import UserForm from "../components/users/UserForm";
+
+const { Title, Text } = Typography;
 
 type Role = { _id: string; name: string };
-
 export type UserRow = {
   _id: string;
   email: string;
@@ -32,11 +40,9 @@ const UsersPage: React.FC = () => {
   const [data, setData] = useState<UserRow[]>([]);
   const [roles, setRoles] = useState<Role[]>([]);
   const [loading, setLoading] = useState(false);
-
   const [modalOpen, setModalOpen] = useState(false);
   const [editing, setEditing] = useState<UserRow | null>(null);
-  const [searchParams, setSearchParams] = useSearchParams();
-
+  const [searchParams] = useSearchParams();
   const [form] = Form.useForm();
   const { hasPermission } = useAuth();
 
@@ -66,7 +72,9 @@ const UsersPage: React.FC = () => {
   const page = parseInt(searchParams.get("page") || "1", 10);
 
   const handleTableChange = (pagination: any) => {
-    setSearchParams({ page: pagination.current.toString() });
+    const newSearchParams = new URLSearchParams(searchParams);
+    newSearchParams.set("page", pagination.current.toString());
+    window.history.pushState(null, "", `?${newSearchParams.toString()}`);
   };
 
   const searchUsers = async (query = "") => {
@@ -113,217 +121,143 @@ const UsersPage: React.FC = () => {
     }
   };
 
-  /* eslint-disable @typescript-eslint/no-explicit-any */ const onFinish =
-    async (values: any) => {
-      try {
-        if (editing) {
-          await userApi.update(editing._id, {
-            fullName: values.fullName,
-            roleIds: values.roleIds || [],
-            isActive: values.isActive,
-          });
-          message.success("Cập nhật người dùng thành công");
-        } else {
-          await userApi.create({
-            email: values.email,
-            password: values.password,
-            fullName: values.fullName,
-            roleIds: values.roleIds || [],
-          });
-          message.success("Tạo người dùng thành công");
-        }
-        setModalOpen(false);
-        searchUsers(q);
-      } catch (err: any) {
-        console.error(err);
-        message.error(err?.response?.data?.message || "Lỗi xử lý người dùng");
+  const onFinish = async (values: any) => {
+    try {
+      if (editing) {
+        await userApi.update(editing._id, {
+          fullName: values.fullName,
+          roleIds: values.roleIds || [],
+          isActive: values.isActive,
+        });
+        message.success("Cập nhật người dùng thành công");
+      } else {
+        await userApi.create({
+          email: values.email,
+          password: values.password,
+          fullName: values.fullName,
+          roleIds: values.roleIds || [],
+        });
+        message.success("Tạo người dùng thành công");
       }
-    };
-
-  const handleDelete = (id: string) => {
-    Modal.confirm({
-      title: "Xóa người dùng?",
-      content: "Hành động này không thể hoàn tác.",
-      okText: "Xóa",
-      cancelText: "Hủy",
-      onOk: async () => {
-        try {
-          await userApi.remove(id);
-          message.success("Đã xóa người dùng");
-          searchUsers(q);
-        } catch (err: any) {
-          console.error(err);
-          message.error(err?.response?.data?.message || "Xóa thất bại");
-        }
-      },
-    });
+      setModalOpen(false);
+      searchUsers(q);
+    } catch (err: any) {
+      console.error(err);
+      message.error(err?.response?.data?.message || "Lỗi xử lý người dùng");
+    }
   };
 
-  const columns: ColumnsType<UserRow> = [
-    {
-      title: "STT",
-      key: "index",
-      render: (_text, _record, index) => index + 1,
-    },
-    { title: "Email", dataIndex: "email", key: "email" },
-    { title: "Họ tên", dataIndex: "fullName", key: "fullName" },
-    {
-      title: "Vai trò",
-      key: "roles",
-      render: (_, record) =>
-        (record.roles || []).map((r) => <Tag key={r._id}>{r.name}</Tag>),
-    },
-    {
-      title: "Kích hoạt",
-      dataIndex: "isActive",
-      key: "isActive",
-      render: (v) =>
-        v ? <Tag color="green">Active</Tag> : <Tag color="red">Inactive</Tag>,
-    },
-    {
-      title: "Hành động",
-      key: "action",
-      render: (_, record) =>
-        canManage ? (
-          <Space>
-            <Button size="small" onClick={() => openModal(record)}>
-              Sửa
-            </Button>
-            <Button
-              size="small"
-              danger
-              onClick={() => handleDelete(record._id)}
-            >
-              Xóa
-            </Button>
-          </Space>
-        ) : null,
-    },
-  ];
+  const handleDelete = async (id: string) => {
+    try {
+      await userApi.remove(id);
+      message.success("Đã xóa người dùng");
+      searchUsers(q);
+    } catch (err: any) {
+      console.error(err);
+      message.error(err?.response?.data?.message || "Xóa thất bại");
+    }
+  };
+
+  const handleEdit = (record: UserRow) => {
+    openModal(record);
+  };
 
   return (
-    <>
-      <Space style={{ marginBottom: 12, width: "100%" }}>
-        {canManage && (
-          <Button type="primary" onClick={() => openModal()}>
-            Thêm người dùng
-          </Button>
-        )}
-        <div style={{ display: "flex", gap: 8 }}>
-          <Input
-            placeholder="Tìm theo email hoặc tên..."
-            allowClear
-            onChange={(e) => onSearchChange(e.target.value)}
-            style={{ width: 250 }}
-          />
-        </div>
-      </Space>
+    <Card
+      bordered={false}
+      style={{
+        borderRadius: 8,
+        boxShadow: "0 2px 8px rgba(0,0,0,0.06)",
+      }}
+    >
+      <Row justify="space-between" align="middle" style={{ marginBottom: 24 }}>
+        <Col>
+          <Title level={4} style={{ margin: 0 }}>
+            Quản lý người dùng
+          </Title>
+          <Text type="secondary">
+            Tổng cộng {data.length} người dùng
+          </Text>
+        </Col>
+        <Col>
+          <Space>
+            <Input
+              placeholder="Tìm theo email hoặc tên..."
+              prefix={<SearchOutlined />}
+              allowClear
+              onChange={(e) => onSearchChange(e.target.value)}
+              style={{ width: 280 }}
+              size="large"
+            />
+            {canManage && (
+              <Button
+                type="primary"
+                icon={<PlusOutlined />}
+                onClick={() => openModal()}
+                size="large"
+              >
+                Thêm người dùng
+              </Button>
+            )}
+          </Space>
+        </Col>
+      </Row>
 
-      <Table
-        rowKey="_id"
+      <UserTable
+        data={data}
         loading={loading}
-        dataSource={data}
-        columns={columns}
-        onChange={handleTableChange}
-        pagination={{
-          current: page,
-          pageSize: 10,
-        }}
+        currentPage={page}
+        canManage={canManage}
+        onEdit={handleEdit}
+        onDelete={handleDelete}
+        onPageChange={handleTableChange}
       />
+
       <Modal
-        title={editing ? "Sửa người dùng" : "Thêm người dùng"}
+        title={
+          <Space>
+            {editing ? (
+              <>
+                <EditOutlined />
+                <span>Sửa người dùng</span>
+              </>
+            ) : (
+              <>
+                <PlusOutlinedIcon />
+                <span>Thêm người dùng mới</span>
+              </>
+            )}
+          </Space>
+        }
         open={modalOpen}
         centered
         onCancel={() => setModalOpen(false)}
         onOk={() => form.submit()}
         maskClosable={false}
+        width={600}
+        footer={[
+          <Button key="cancel" onClick={() => setModalOpen(false)}>
+            Hủy
+          </Button>,
+          <Button
+            key="submit"
+            type="primary"
+            onClick={() => form.submit()}
+            loading={loading}
+          >
+            {editing ? "Cập nhật" : "Tạo mới"}
+          </Button>,
+        ]}
       >
-        <Form layout="vertical" form={form} onFinish={onFinish}>
-          <Form.Item
-            label="Email"
-            name="email"
-            rules={[
-              { required: true, message: "Nhập email" },
-              { type: "email", message: "Email không hợp lệ" },
-            ]}
-          >
-            <Input disabled={!!editing} />
-          </Form.Item>
-
-          {!editing && (
-            <>
-              <Form.Item
-                label="Mật khẩu"
-                name="password"
-                rules={[
-                  { required: true, message: "Nhập mật khẩu" },
-                  {
-                    pattern: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$/,
-                    message:
-                      "Mật khẩu phải ít nhất 8 ký tự, gồm chữ hoa, chữ thường và số",
-                  },
-                ]}
-                hasFeedback
-              >
-                <Input.Password />
-              </Form.Item>
-
-              <Form.Item
-                label="Xác nhận mật khẩu"
-                name="confirmPassword"
-                dependencies={["password"]}
-                hasFeedback
-                rules={[
-                  { required: true, message: "Nhập lại mật khẩu" },
-                  ({ getFieldValue }) => ({
-                    validator(_, value) {
-                      if (!value || getFieldValue("password") === value) {
-                        return Promise.resolve();
-                      }
-                      return Promise.reject(
-                        new Error("Mật khẩu xác nhận không khớp")
-                      );
-                    },
-                  }),
-                ]}
-              >
-                <Input.Password />
-              </Form.Item>
-            </>
-          )}
-
-          <Form.Item
-            label="Họ tên"
-            name="fullName"
-            rules={[{ required: true, message: "Vui nhập tên" }]}
-          >
-            <Input />
-          </Form.Item>
-
-          <Form.Item
-            label="Vai trò"
-            name="roleIds"
-            rules={[
-              { required: true, message: "Vui vòng thêm ít nhất 1 vai trò" },
-            ]}
-          >
-            <Select
-              mode="multiple"
-              showSearch={false}
-              placeholder="Chọn vai trò"
-              options={roles.map((r) => ({
-                label: r.name,
-                value: r._id,
-              }))}
-            />
-          </Form.Item>
-
-          <Form.Item label="Kích hoạt" name="isActive" valuePropName="checked">
-            <Switch />
-          </Form.Item>
-        </Form>
+        <UserForm
+          editing={editing}
+          form={form}
+          roles={roles}
+          onFinish={onFinish}
+          loading={loading}
+        />
       </Modal>
-    </>
+    </Card>
   );
 };
 

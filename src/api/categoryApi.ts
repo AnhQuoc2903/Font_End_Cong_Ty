@@ -4,6 +4,8 @@ export type Category = {
   _id: string;
   name: string;
   description?: string;
+  artifactCount?: number;
+  createdAt?: string;
 };
 
 export const categoryApi = {
