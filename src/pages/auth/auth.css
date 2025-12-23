@@ -1,0 +1,8 @@
+.forgot-footer-link {
+  color: rgba(255, 255, 255, 0.9);
+  text-decoration: none;
+}
+
+.forgot-footer-link:hover {
+  text-decoration: underline;
+}

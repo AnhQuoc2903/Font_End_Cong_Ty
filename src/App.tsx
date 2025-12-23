@@ -4,12 +4,12 @@ import { AuthProvider } from "./context/AuthContext";
 import PrivateRoute from "./components/PrivateRoute";
 import MainLayout from "./layout/MainLayout";
 import CategoriesPage from "./pages/CategoriesPage";
-import UsersPage from "./pages/UsersPage";
-import RolesPage from "./pages/RolesPage";
+import UsersPage from "././pages/UsersPage";
+import RolesPage from "././pages/RolesPage";
 
-import LoginPage from "./pages/LoginPage";
-import ForgotPasswordPage from "./pages/ForgotPasswordPage";
-import ResetPasswordPage from "./pages/ResetPasswordPage";
+import LoginPage from "./pages/auth/LoginPage";
+import ForgotPasswordPage from "./pages/auth/ForgotPasswordPage";
+import ResetPasswordPage from "./pages/auth/ResetPasswordPage";
 import ArtifactsPage from "./pages/ArtifactsPage";
 
 const App: React.FC = () => {

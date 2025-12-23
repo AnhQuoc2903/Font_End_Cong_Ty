@@ -1,78 +1,41 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import React, { useEffect, useMemo, useRef, useState } from "react";
-import {
-  Button,
-  Modal,
-  Table,
-  Form,
-  message,
-  Dropdown,
-  type MenuProps,
-  Tag,
-} from "antd";
-import type { ColumnsType } from "antd/es/table";
-import {
-  EditOutlined,
-  DeleteOutlined,
-  HistoryOutlined,
-  SearchOutlined,
-  EllipsisOutlined,
-  InfoCircleOutlined,
-  PlusCircleOutlined,
-  MinusCircleOutlined,
-  SlidersOutlined,
-} from "@ant-design/icons";
+import { Button, Modal, Form, message, Card, Space, Typography } from "antd";
+import { PlusOutlined, DeleteOutlined } from "@ant-design/icons";
 
 import { artifactApi } from "../api/artifactApi";
 import { aiApi } from "../api/aiApi";
 import { useAuth } from "../context/AuthContext";
-import ArtifactFilterBar from "../components/ArtifactFilterBar";
-import ImageCell from "../components/ImageCell";
+import { useSearchParams } from "react-router-dom";
+
 import ArtifactFormModal from "../components/ArtifactFormModal";
 import StockModal from "../components/StockModal";
 import AdjustStockModal from "../components/AdjustStockModal";
 import HistoryModal from "../components/HistoryModal";
 import ArtifactDetailModal from "../components/ArtifactDetailModal";
 import GoogleSearchModal from "../components/GoogleSearchModal";
-import { useSearchParams } from "react-router-dom";
+import { ArtifactStatsCards } from "../components/ArtifactStatsCards";
+import SearchFilterBar from "../components/ArtifactFilterBar";
+import { ArtifactTable } from "../components/ArtifactTable";
+import type { Artifact, GoogleResult, ArtifactTransaction } from "../types";
 
-export type Artifact = {
-  createdBy: any;
-  updatedAt: any;
-  createdAt: any;
-  _id: string;
-  code: string;
-  name: string;
-  description?: string;
-  location?: string;
-  quantityCurrent: number;
-  status?: string;
-  imageUrl?: string | null;
-  imagePublicId?: string | null;
-  category?: { _id?: string; name?: string, description?: string;
- } | null;
-};
+const { Title, Text } = Typography;
 
-type GoogleResult = {
-  title: string;
-  imageUrl: string;
-  contextLink?: string;
-  snippet?: string;
-};
-
-type ArtifactTransaction = {
-  _id: string;
-  type: "IMPORT" | "EXPORT" | "ADJUST";
-  quantityChange: number;
-  reason?: string;
-  createdAt: string;
-  createdBy?: { fullName?: string; email?: string };
+const COLORS = {
+  primary: "#1890ff",
+  background: "#fafafa",
+  cardBg: "#ffffff",
+  border: "#f0f0f0",
+  text: "#262626",
+  textSecondary: "#8c8c8c",
 };
 
 const ArtifactsPage: React.FC = () => {
   const [data, setData] = useState<Artifact[]>([]);
   const [loading, setLoading] = useState(false);
   const [detailOpen, setDetailOpen] = useState(false);
+  const [filterVisible, setFilterVisible] = useState(false);
 
   const [modalType, setModalType] = useState<
     "create" | "edit" | "import" | "export" | "adjust" | null
@@ -102,7 +65,6 @@ const ArtifactsPage: React.FC = () => {
 
   // pagination sync with URL
   const [searchParams, setSearchParams] = useSearchParams();
-
   const page = parseInt(searchParams.get("page") || "1", 10);
 
   const handleTableChange = (pagination: any) => {
@@ -128,8 +90,6 @@ const ArtifactsPage: React.FC = () => {
   }, []);
 
   // helpers
-  const shorten = (s = "", n = 30) =>
-    s && s.length > n ? s.slice(0, n) + "..." : s || "-";
   const removeVietnameseTones = (str = "") => {
     if (!str) return "";
     return str
@@ -227,219 +187,172 @@ const ArtifactsPage: React.FC = () => {
     });
   }, [data, searchText, statusFilter]);
 
-  const columns: ColumnsType<Artifact> = useMemo(
-    () => [
-      {
-        title: "STT",
-        align: "center",
-        key: "index",
-        width: 60,
-        render: (_t, _r, i) => i + 1,
+  const handleDeleteArtifact = (record: Artifact) => {
+    Modal.confirm({
+      title: `Xóa hiện vật "${record.name}"?`,
+      content: "Hành động này không thể hoàn tác.",
+      okText: "Xóa",
+      okType: "danger",
+      cancelText: "Hủy",
+      icon: <DeleteOutlined />,
+      centered: true,
+      onOk: async () => {
+        try {
+          await artifactApi.remove(record._id);
+          message.success("Đã xóa hiện vật");
+          fetchData();
+        } catch (err: any) {
+          console.error(err);
+          message.error(err?.response?.data?.message || "Xóa thất bại");
+        }
       },
-      {
-        title: "Mã",
-        dataIndex: "code",
-        key: "code",
-        width: 140,
-        render: (v) => shorten(v, 24),
-      },
-      {
-        title: "Tên",
-        dataIndex: "name",
-        key: "name",
-        width: 100,
-        render: (v) => shorten(v, 24),
-      },
-      {
-        title: "Ảnh",
-        key: "image",
-        dataIndex: "imageUrl",
-        width: 140,
-        align: "center",
-        render: (_: any, record: Artifact) => (
-          <div className="flex justify-center">
-            <ImageCell src={record.imageUrl} alt={record.name} size={96} />
-          </div>
-        ),
-      },
+    });
+  };
 
-      {
-        title: "Danh mục",
-        key: "category",
-        dataIndex: ["category", "name"],
-        width: 70,
-        render: (v) => shorten(v as string, 24),
-      },
-      {
-        title: "Tồn kho",
-        dataIndex: "quantityCurrent",
-        key: "quantityCurrent",
-        width: 100,
-        align: "center",
-      },
-      {
-        title: "Vị trí",
-        dataIndex: "location",
-        key: "location",
-        width: 160,
-        render: (v) => shorten(v, 24),
-      },
-      {
-        title: "Trạng thái",
-        dataIndex: "status",
-        key: "status",
-        width: 140,
-        render: (status: string | undefined) => {
-          if (!status) return <Tag>-</Tag>;
+  const handleExportExcel = async () => {
+    try {
+      const res = await artifactApi.exportExcel();
 
-          const colorMap: Record<string, string> = {
-            bosung: "cyan",
-            con: "green",
-            ban: "red",
-          };
-          const labelMap: Record<string, string> = {
-            bosung: "Bổ sung",
-            con: "Còn hàng",
-            ban: "Hết hàng",
-          };
+      const blob = new Blob([res.data], {
+        type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+      });
 
-          return (
-            <Tag color={colorMap[status] || "default"}>
-              {labelMap[status] ||
-                status.charAt(0).toUpperCase() + status.slice(1)}
-            </Tag>
-          );
-        },
-      },
-      {
-        key: "action",
-        width: 72,
-        align: "center",
-        render: (_: any, record: Artifact) => {
-          const items: MenuProps["items"] = [
-            hasPermission("EDIT_ARTIFACT")
-              ? { key: "edit", label: "Sửa", icon: <EditOutlined /> }
-              : null,
-            hasPermission("DELETE_ARTIFACT")
-              ? { key: "delete", label: "Xóa", icon: <DeleteOutlined /> }
-              : null,
-            hasPermission("IMPORT_ARTIFACT")
-              ? {
-                  key: "import",
-                  label: "Nhập kho",
-                  icon: <PlusCircleOutlined />,
-                }
-              : null,
-            hasPermission("EXPORT_ARTIFACT")
-              ? {
-                  key: "export",
-                  label: "Xuất kho",
-                  icon: <MinusCircleOutlined />,
-                }
-              : null,
-            hasPermission("ADJUST_ARTIFACT")
-              ? {
-                  key: "adjust",
-                  label: "Điều chỉnh tồn",
-                  icon: <SlidersOutlined />,
-                }
-              : null,
-            hasPermission("VIEW_ARTIFACT_TRANSACTIONS")
-              ? { key: "history", label: "Lịch sử", icon: <HistoryOutlined /> }
-              : null,
-            { key: "google", label: "Tìm Google", icon: <SearchOutlined /> },
-            {
-              key: "detail",
-              label: "Xem chi tiết",
-              icon: <InfoCircleOutlined />,
-            },
-          ].filter(Boolean) as MenuProps["items"];
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement("a");
 
-          const onMenuClick: MenuProps["onClick"] = async ({ key }) => {
-            try {
-              if (key === "edit") {
-                openModal("edit", record);
-              } else if (key === "delete") {
-                Modal.confirm({
-                  title: `Xóa hiện vật "${record.name}"?`,
-                  content: "Hành động này không thể hoàn tác.",
-                  okText: "Xóa",
-                  okType: "danger",
-                  cancelText: "Hủy",
-                  onOk: async () => {
-                    try {
-                      await artifactApi.remove(record._id);
-                      message.success("Đã xóa hiện vật");
-                      fetchData();
-                    } catch (err: any) {
-                      console.error(err);
-                      message.error(
-                        err?.response?.data?.message || "Xóa thất bại"
-                      );
-                    }
-                  },
-                });
-              } else if (key === "import") {
-                openModal("import", record);
-              } else if (key === "export") {
-                openModal("export", record);
-              } else if (key === "adjust") {
-                openModal("adjust", record);
-              } else if (key === "history") {
-                openHistory(record);
-              } else if (key === "google") {
-                openGoogleFor(record);
-              } else if (key === "detail") {
-                setSelectedArtifact(record);
-                setDetailOpen(true);
-              }
-            } catch (err) {
-              console.error(err);
-            }
-          };
+      a.href = url;
+      a.download = `danh-sach-hien-vat-${new Date()
+        .toISOString()
+        .slice(0, 10)}.xlsx`;
 
-          return (
-            <Dropdown
-              menu={{ items, onClick: onMenuClick }}
-              trigger={["click"]}
-              placement="bottomRight"
-            >
-              <Button icon={<EllipsisOutlined />} size="small" />
-            </Dropdown>
-          );
-        },
-      },
-    ],
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [hasPermission]
-  );
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      window.URL.revokeObjectURL(url);
+    } catch (err) {
+      console.error(err);
+      message.error("Xuất Excel thất bại");
+    }
+  };
 
-  // RENDER
+  // Summary stats
+  const summaryStats = useMemo(() => {
+    const total = data.length;
+
+    const newItems = data.filter((item) => item.status === "bosung").length;
+
+    const inStock = data.filter(
+      (item) => item.status === "con" && item.quantityCurrent > 0
+    ).length;
+
+    const outOfStock = data.filter((item) => item.status === "ban").length;
+
+    return { total, inStock, outOfStock, newItems };
+  }, [data]);
+
   return (
-    <>
-      <ArtifactFilterBar
-        canCreate={hasPermission("CREATE_ARTIFACT")}
-        onCreate={() => openModal("create")}
-        searchText={searchText}
-        onSearchTextChange={onSearchTextChange}
-        statusFilter={statusFilter}
-        onStatusFilterChange={setStatusFilter}
-      />
-
-      <Table
-        rowKey="_id"
-        loading={loading}
-        columns={columns}
-        dataSource={filteredData}
-        onChange={handleTableChange}
-        pagination={{
-          current: page,
-          pageSize: 10,
+    <div
+      style={{ padding: 24, background: COLORS.background, minHeight: "100vh" }}
+    >
+      <Card
+        style={{
+          borderRadius: 12,
+          marginBottom: 24,
+          border: `1px solid ${COLORS.border}`,
+          boxShadow: "0 2px 8px rgba(0,0,0,0.04)",
         }}
-        scroll={{ x: 1200 }}
-        size="middle"
-      />
+        bodyStyle={{ padding: 24 }}
+      >
+        {/* Header Section */}
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+            marginBottom: 24,
+          }}
+        >
+          <div>
+            <Title level={3} style={{ margin: 0, color: COLORS.text }}>
+              Quản lý hiện vật
+            </Title>
+            <Text type="secondary" style={{ fontSize: 14 }}>
+              Tổng cộng {summaryStats.total} hiện vật trong hệ thống
+            </Text>
+          </div>
 
+          <Space>
+            <Button
+              onClick={handleExportExcel}
+              style={{
+                height: 40,
+                padding: "0 20px",
+                borderRadius: 8,
+              }}
+            >
+              Xuất Excel
+            </Button>
+            {hasPermission("CREATE_ARTIFACT") && (
+              <Button
+                type="primary"
+                icon={<PlusOutlined />}
+                onClick={() => openModal("create")}
+                style={{
+                  height: 40,
+                  padding: "0 20px",
+                  borderRadius: 8,
+                  background: COLORS.primary,
+                  border: "none",
+                  boxShadow: "0 2px 0 rgba(0,0,0,0.045)",
+                }}
+              >
+                Thêm hiện vật
+              </Button>
+            )}
+          </Space>
+        </div>
+
+        {/* Stats Cards */}
+        <ArtifactStatsCards stats={summaryStats} />
+
+        {/* Search and Filter Bar */}
+        <SearchFilterBar
+          searchText={searchText}
+          onSearchChange={onSearchTextChange}
+          statusFilter={statusFilter}
+          onStatusFilterChange={setStatusFilter}
+          filterVisible={filterVisible}
+          onToggleFilter={() => setFilterVisible(!filterVisible)}
+        />
+
+        {/* Table */}
+        <Card
+          style={{
+            border: `1px solid ${COLORS.border}`,
+            borderRadius: 8,
+            overflow: "hidden",
+          }}
+          bodyStyle={{ padding: 0 }}
+        >
+          <ArtifactTable
+            data={filteredData}
+            loading={loading}
+            page={page}
+            hasPermission={hasPermission}
+            onTableChange={handleTableChange}
+            onOpenModal={openModal}
+            onOpenHistory={openHistory}
+            onOpenGoogle={openGoogleFor}
+            onOpenDetail={(record) => {
+              setSelectedArtifact(record);
+              setDetailOpen(true);
+            }}
+            onDeleteArtifact={handleDeleteArtifact}
+          />
+        </Card>
+      </Card>
+
+      {/* Modals */}
       <ArtifactFormModal
         open={modalType === "create" || modalType === "edit"}
         mode={modalType === "create" ? "create" : "edit"}
@@ -455,6 +368,7 @@ const ArtifactsPage: React.FC = () => {
         open={modalType === "import" || modalType === "export"}
         mode={modalType === "import" ? "import" : "export"}
         artifactName={selectedArtifact?.name}
+        currentQuantity={selectedArtifact?.quantityCurrent ?? 0}
         form={form}
         onCancel={() => setModalType(null)}
         onOk={handleImportExport}
@@ -509,7 +423,35 @@ const ArtifactsPage: React.FC = () => {
         artifactId={selectedArtifact?._id}
         onClose={() => setDetailOpen(false)}
       />
-    </>
+
+      {/* Global Styles */}
+      <style>{`
+        .artifact-row:hover {
+          background: rgba(24, 144, 255, 0.02) !important;
+        }
+        
+        .ant-table-thead > tr > th {
+          background: #fafafa !important;
+          border-bottom: 2px solid #f0f0f0 !important;
+          font-weight: 600 !important;
+          color: #262626 !important;
+          padding: 16px 12px !important;
+        }
+        
+        .ant-table-tbody > tr > td {
+          border-bottom: 1px solid #f0f0f0 !important;
+          padding: 16px 12px !important;
+        }
+        
+        .ant-table-wrapper .ant-table {
+          border-radius: 8px;
+        }
+        
+        .ant-table-wrapper .ant-table-container {
+          border-radius: 8px;
+        }
+      `}</style>
+    </div>
   );
 };
 

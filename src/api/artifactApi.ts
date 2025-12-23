@@ -30,13 +30,16 @@ export const artifactApi = {
   getTransactions(id: string) {
     return axiosClient.get(`/artifacts/${id}/transactions`);
   },
-  uploadImage(id: string, file: File) {
+  uploadImages(id: string, files: File[]) {
     const fd = new FormData();
-    fd.append("file", file); // phải trùng tên 'file' với multer.single('file')
-    return axiosClient.post(`/artifacts/${id}/image`, fd);
+    files.forEach((f) => fd.append("files", f));
+    return axiosClient.post(`/artifacts/${id}/images`, fd);
   },
-  deleteImage(id: string) {
-    return axiosClient.delete(`/artifacts/${id}/image`);
+
+  deleteImage(id: string, publicId: string) {
+    return axiosClient.delete(
+      `/artifacts/${id}/images/${encodeURIComponent(publicId)}`
+    );
   },
 
   createWithImage(fd: FormData) {
@@ -44,5 +47,10 @@ export const artifactApi = {
   },
   updateWithImage(id: string, fd: FormData) {
     return axiosClient.patch(`/artifacts/${id}`, fd);
+  },
+  exportExcel() {
+    return axiosClient.get("/artifacts/export/excel", {
+      responseType: "blob",
+    });
   },
 };

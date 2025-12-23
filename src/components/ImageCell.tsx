@@ -4,7 +4,7 @@ import { Image, Tooltip } from "antd";
 type Props = {
   src?: string | null;
   alt?: string;
-  size?: number; // chiều rộng px
+  size?: number; // chiều rộng (px)
   title?: string;
   className?: string;
 };
@@ -16,9 +16,10 @@ const ImageCell: React.FC<Props> = ({
   title,
   className,
 }) => {
+  // chiều cao theo tỉ lệ ảnh ngang (3:2)
   const height = Math.round(size * 0.66);
 
-  // Style chung cho container (có ảnh hoặc không)
+  // container chung
   const containerClass = [
     "inline-flex items-center justify-center",
     "rounded-md border bg-white shadow-sm overflow-hidden",
@@ -28,14 +29,13 @@ const ImageCell: React.FC<Props> = ({
     .filter(Boolean)
     .join(" ");
 
+  // ❌ Không có ảnh → placeholder
   if (!src) {
-    // Placeholder khi chưa có ảnh
     return (
       <div
         className={[
           "flex items-center justify-center rounded-md border border-dashed",
           "border-gray-200 bg-gray-50 text-[11px] text-gray-400",
-          "px-2",
           className,
         ]
           .filter(Boolean)
@@ -47,18 +47,18 @@ const ImageCell: React.FC<Props> = ({
     );
   }
 
+  // ✅ Có ảnh
   return (
     <Tooltip title={title || alt}>
       <div className={containerClass} style={{ width: size, height }}>
         <Image
           src={src}
           alt={alt}
-          width={size}
-          height={height}
-          className="object-cover"
-          // Đảm bảo Image không phá layout container
-          rootClassName="!flex !w-full !h-full"
+          width="100%"
+          height="100%"
+          style={{ objectFit: "cover" }}
           preview={{ src }}
+          fallback="" // tránh vỡ layout nếu ảnh lỗi
         />
       </div>
     </Tooltip>

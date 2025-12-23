@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Button, Form, Input, message, Select } from "antd";
 import { artifactApi } from "../api/artifactApi";
-import type { Artifact } from "../pages/ArtifactsPage";
+import type { Artifact } from "../types";
 
 import { categoryApi } from "../api/categoryApi";
 import type { Category } from "../api/categoryApi";

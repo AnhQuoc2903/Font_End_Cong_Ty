@@ -1,73 +1,76 @@
-// ArtifactFilterBar.transition.tsx
-import React, { useState, useTransition, useEffect } from "react";
-import { Button, Input, Select, Space } from "antd";
+import React, { useEffect, useState, useTransition } from "react";
+import { Input, Select, Space } from "antd";
+import { SearchOutlined, FilterOutlined } from "@ant-design/icons";
 
 type Props = {
-  canCreate: boolean;
-  onCreate: () => void;
   searchText: string;
-  onSearchTextChange: (value: string) => void;
+  onSearchChange: (value: string) => void;
   statusFilter?: string;
   onStatusFilterChange: (value?: string) => void;
+  filterVisible?: boolean;
+  onToggleFilter?: () => void;
 };
 
 const ArtifactFilterBar: React.FC<Props> = ({
-  canCreate,
-  onCreate,
   searchText,
-  onSearchTextChange,
+  onSearchChange,
   statusFilter,
   onStatusFilterChange,
 }) => {
-  const [inputValue, setInputValue] = useState(searchText || "");
-  const [isPending, startTransition] = useTransition();
+  const [inputValue, setInputValue] = useState(searchText);
+  const [, startTransition] = useTransition();
 
-  // keep local input in sync if parent changes searchText externally
   useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect
-    setInputValue(searchText || "");
+    setInputValue(searchText);
   }, [searchText]);
 
   const handleChange = (val: string) => {
     setInputValue(val);
-    // defer the expensive update (filter) so UI stays snappy
     startTransition(() => {
-      onSearchTextChange(val);
+      onSearchChange(val);
     });
   };
 
   return (
-    <Space style={{ marginBottom: 16 }}>
-      {canCreate && (
-        <Button type="primary" onClick={onCreate}>
-          Thêm hiện vật
-        </Button>
-      )}
+    <div
+      style={{
+        padding: "12px 16px",
+        background: "#fafafa",
+        border: "1px solid #f0f0f0",
+        borderRadius: 10,
+        marginBottom: 16,
+      }}
+    >
+      <Space size={12} wrap>
+        {/* Search */}
+        <Input
+          allowClear
+          prefix={<SearchOutlined style={{ color: "#8c8c8c" }} />}
+          placeholder="Tìm theo mã hoặc tên hiện vật"
+          value={inputValue}
+          onChange={(e) => handleChange(e.target.value)}
+          style={{
+            width: 280,
+            height: 40,
+            borderRadius: 8,
+          }}
+        />
 
-      <Input
-        placeholder="Tìm theo mã hoặc tên"
-        value={inputValue}
-        onChange={(e) => handleChange(e.target.value)}
-        style={{ width: 250 }}
-        allowClear
-        onPressEnter={() => onSearchTextChange(inputValue)}
-      />
-
-      <Select
-        allowClear
-        placeholder="Lọc theo trạng thái"
-        style={{ width: 180 }}
-        value={statusFilter}
-        onChange={(val) => onStatusFilterChange(val)}
-      >
-        <Select.Option value="bosung">Mới bổ sung</Select.Option>
-        <Select.Option value="con">Còn hàng</Select.Option>
-        <Select.Option value="ban">Đã bán / Hết</Select.Option>
-      </Select>
-
-      {/* Optional visual hint */}
-      {isPending ? <span>Loading…</span> : null}
-    </Space>
+        {/* Status filter */}
+        <Select
+          allowClear
+          value={statusFilter}
+          placeholder="Trạng thái"
+          onChange={onStatusFilterChange}
+          style={{ width: 200, height: 40 }}
+          suffixIcon={<FilterOutlined />}
+        >
+          <Select.Option value="bosung">Mới bổ sung</Select.Option>
+          <Select.Option value="con">Còn hàng</Select.Option>
+          <Select.Option value="ban">Đã bán / Hết</Select.Option>
+        </Select>
+      </Space>
+    </div>
   );
 };
 
