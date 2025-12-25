@@ -25,21 +25,20 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
   children,
 }) => {
-  const [user, setUser] = useState<User | null>(() => {
-    const s = sessionStorage.getItem("user");
-
-    return s ? JSON.parse(s) : null;
-  });
-  const [accessToken, setAccessToken] = useState<string | null>(() =>
-    sessionStorage.getItem("accessToken")
-  );
-
+  const [user, setUser] = useState<User | null>(null);
+  const [accessToken, setAccessToken] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
 
-  // restore tokens/user from localStorage at startup
+  /**
+   * =========================
+   * RESTORE SESSION (F5)
+   * =========================
+   * Chỉ restore accessToken + user
+   * refreshToken nằm trong HttpOnly cookie → browser tự lo
+   */
   useEffect(() => {
-    const u = sessionStorage.getItem("user");
-    const a = sessionStorage.getItem("accessToken");
+    const u = localStorage.getItem("user");
+    const a = localStorage.getItem("accessToken");
 
     if (u && a) {
       setUser(JSON.parse(u));
@@ -51,16 +50,25 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
     setLoading(false);
   }, []);
 
+  /**
+   * =========================
+   * LOGIN
+   * =========================
+   * Backend tự set refreshToken cookie
+   */
   const login = async (email: string, password: string) => {
     try {
       const res = await authApi.login({ email, password });
-      const { accessToken, refreshToken, user } = res.data;
-      sessionStorage.setItem("accessToken", accessToken);
-      sessionStorage.setItem("refreshToken", refreshToken);
-      sessionStorage.setItem("user", JSON.stringify(user));
+
+      const { accessToken, user } = res.data;
+
+      // ✅ CHỈ LƯU accessToken + user
+      localStorage.setItem("accessToken", accessToken);
+      localStorage.setItem("user", JSON.stringify(user));
 
       setUser(user);
       setAccessToken(accessToken);
+
       message.success("Đăng nhập thành công");
     } catch (err: any) {
       console.error(err);
@@ -69,19 +77,25 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
     }
   };
 
+  /**
+   * =========================
+   * LOGOUT
+   * =========================
+   * Backend xoá refreshToken cookie
+   */
   const logout = async () => {
     try {
-      const refreshToken = localStorage.getItem("refreshToken");
-      if (refreshToken) await authApi.logout(refreshToken);
+      await authApi.logout(); // 🔥 KHÔNG GỬI refreshToken
     } catch (e) {
       console.warn("logout api failed", e);
     } finally {
-      sessionStorage.removeItem("accessToken");
-      sessionStorage.removeItem("refreshToken");
-      sessionStorage.removeItem("user");
+      // ✅ XOÁ STATE FRONTEND
+      localStorage.removeItem("accessToken");
+      localStorage.removeItem("user");
 
       setUser(null);
       setAccessToken(null);
+
       window.location.href = "/login";
     }
   };
@@ -98,7 +112,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
     </AuthContext.Provider>
   );
 };
-
 // eslint-disable-next-line react-refresh/only-export-components
 export const useAuth = () => {
   const ctx = useContext(AuthContext);

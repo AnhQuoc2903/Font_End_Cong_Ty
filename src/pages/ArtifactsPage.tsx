@@ -17,7 +17,12 @@ import GoogleSearchModal from "../components/artifact//GoogleSearchModal";
 import { ArtifactStatsCards } from "../components/artifact/ArtifactStatsCards";
 import SearchFilterBar from "../components/artifact/ArtifactFilterBar";
 import { ArtifactTable } from "../components/artifact/ArtifactTable";
-import type { Artifact, GoogleResult, ArtifactTransaction } from "../components/artifact/types";
+import type {
+  Artifact,
+  GoogleResult,
+  ArtifactTransaction,
+} from "../components/artifact/types";
+import { socket } from "../socket";
 
 const { Title, Text } = Typography;
 
@@ -85,10 +90,25 @@ const ArtifactsPage: React.FC = () => {
   };
 
   useEffect(() => {
+    const reload = () => {
+      fetchData();
+    };
+
+    // load lần đầu
     fetchData();
+
+    // nghe thay đổi chung (create / edit / delete)
+    socket.on("artifact:changed", reload);
+
+    // 🔥 nghe thay đổi ảnh
+    socket.on("artifact:image:changed", reload);
+
+    return () => {
+      socket.off("artifact:changed", reload);
+      socket.off("artifact:image:changed", reload);
+    };
   }, []);
 
-  // helpers
   const removeVietnameseTones = (str = "") => {
     if (!str) return "";
     return str
@@ -357,9 +377,18 @@ const ArtifactsPage: React.FC = () => {
         mode={modalType === "create" ? "create" : "edit"}
         artifact={selectedArtifact}
         onClose={() => setModalType(null)}
-        onSuccess={() => {
+        onSuccess={(updated) => {
+          if (!updated?._id) return;
+
+          setData((prev) =>
+            prev.map((item) =>
+              item._id === updated._id
+                ? { ...item, ...updated } 
+                : item
+            )
+          );
+
           setModalType(null);
-          fetchData();
         }}
       />
 

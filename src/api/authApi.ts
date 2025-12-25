@@ -4,11 +4,11 @@ export const authApi = {
   login(data: { email: string; password: string }) {
     return axiosNoAuth.post("/auth/login", data);
   },
-  refresh(refreshToken: string) {
-    return axiosNoAuth.post("/auth/refresh", { refreshToken });
+  refresh() {
+    return axiosNoAuth.post("/auth/refresh");
   },
-  logout(refreshToken?: string) {
-    return axiosNoAuth.post("/auth/logout", { refreshToken });
+  logout() {
+    return axiosNoAuth.post("/auth/logout");
   },
 
   forgotPassword(email: string) {

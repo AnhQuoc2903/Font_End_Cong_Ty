@@ -2,5 +2,5 @@ import axios from "axios";
 
 export const axiosNoAuth = axios.create({
   baseURL: import.meta.env.VITE_API_URL,
-  withCredentials: true, // nếu bạn dùng cookie-based change accordingly
+  withCredentials: true,
 });

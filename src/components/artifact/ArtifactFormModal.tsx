@@ -190,25 +190,28 @@ const ArtifactFormModal: React.FC<Props> = ({
         saved = res.data;
       }
 
-      setCurrentArtifact(saved);
+     const newFiles = fileList
+      .filter((f) => !!f.originFileObj)
+      .map((f) => f.originFileObj as File);
 
-      // upload ONLY new files
-      const newFiles = fileList
-        .filter((f) => !!f.originFileObj)
-        .map((f) => f.originFileObj as File);
+    let finalArtifact = saved;
 
-      if (newFiles.length && saved._id) {
-        await artifactApi.uploadImages(saved._id, newFiles);
-      }
+    if (newFiles.length && saved._id) {
+      await artifactApi.uploadImages(saved._id, newFiles);
 
-      message.success(
-        mode === "create"
-          ? "Tạo hiện vật thành công!"
-          : "Cập nhật thành công!"
-      );
+      // 🔥 LẤY LẠI ARTIFACT SAU KHI UPLOAD ẢNH
+      const refreshed = await artifactApi.get(saved._id);
+      finalArtifact = refreshed.data;
+    }
 
-      onSuccess?.(saved);
-      onClose();
+    message.success(
+      mode === "create"
+        ? "Tạo hiện vật thành công!"
+        : "Cập nhật thành công!"
+    );
+
+    onSuccess?.(finalArtifact); // ✅ CHỈ 1 LẦN
+    onClose();
     } catch (err: any) {
       console.error(err);
       message.error(err?.response?.data?.message || "❌ Lưu thất bại");

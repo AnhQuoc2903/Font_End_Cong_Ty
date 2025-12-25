@@ -9,7 +9,7 @@ const axiosClient = axios.create({
 
 // Attach access token
 axiosClient.interceptors.request.use((config) => {
-  const token = sessionStorage.getItem("accessToken");
+  const token = localStorage.getItem("accessToken");
   if (token) {
     config.headers = config.headers || {};
     config.headers.Authorization = `Bearer ${token}`;
@@ -32,75 +32,64 @@ function addSubscriber(cb: (token: string | null) => void) {
 // Response interceptor
 axiosClient.interceptors.response.use(
   (response) => response,
-  (error) => {
+  async (error) => {
     const originalRequest = error.config;
     const status = error?.response?.status;
 
-    if ((status === 401 || status === 403) && !originalRequest?._retry) {
+    if ((status === 401 || status === 403) && !originalRequest._retry) {
       originalRequest._retry = true;
 
+      /**
+       * 🔁 Nếu đang refresh → xếp hàng
+       */
       if (isRefreshing) {
         return new Promise((resolve, reject) => {
           addSubscriber((token) => {
-            if (token) {
-              originalRequest.headers = originalRequest.headers || {};
-              originalRequest.headers.Authorization = `Bearer ${token}`;
-              resolve(axiosClient.request(originalRequest));
-            } else {
-              reject(error);
-            }
+            if (!token) return reject(error);
+            originalRequest.headers.Authorization = `Bearer ${token}`;
+            resolve(axiosClient(originalRequest));
           });
         });
       }
 
       isRefreshing = true;
-      const refreshToken = sessionStorage.getItem("refreshToken");
-      if (!refreshToken) {
+
+      try {
+        /**
+         * 🔥 GỌI REFRESH KHÔNG GỬI GÌ
+         * Browser tự gửi HttpOnly cookie
+         */
+        const res = await axiosNoAuth.post("/auth/refresh");
+
+        const newAccessToken = res.data.accessToken;
+        if (!newAccessToken) throw new Error("No access token");
+
+        // ✅ LƯU accessToken MỚI
+        localStorage.setItem("accessToken", newAccessToken);
+
+        if (res.data.user) {
+          localStorage.setItem("user", JSON.stringify(res.data.user));
+        }
+
+        onRefreshed(newAccessToken);
+        isRefreshing = false;
+
+        originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;
+        return axiosClient(originalRequest);
+      } catch (refreshError) {
+        /**
+         * ❌ REFRESH FAIL → LOGOUT CỨNG
+         */
+        onRefreshed(null);
+        isRefreshing = false;
+
         localStorage.removeItem("accessToken");
-        localStorage.removeItem("refreshToken");
         localStorage.removeItem("user");
+
         message.error("Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.");
         window.location.href = "/login";
-        return Promise.reject(error);
+        return Promise.reject(refreshError);
       }
-
-      return axiosNoAuth
-        .post("/auth/refresh", { refreshToken })
-        .then((res) => {
-          const newAccessToken = res.data.accessToken;
-          const newRefreshToken = res.data.refreshToken;
-
-          if (!newAccessToken) {
-            throw new Error("No access token in refresh response");
-          }
-
-          // save tokens + user
-          sessionStorage.setItem("accessToken", newAccessToken);
-          if (newRefreshToken)
-            sessionStorage.setItem("refreshToken", newRefreshToken);
-          if (res.data.user)
-            sessionStorage.setItem("user", JSON.stringify(res.data.user));
-
-          onRefreshed(newAccessToken);
-          isRefreshing = false;
-
-          originalRequest.headers = originalRequest.headers || {};
-          originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;
-          return axiosClient.request(originalRequest);
-        })
-        .catch((err) => {
-          console.error("Refresh failed", err);
-          onRefreshed(null);
-          isRefreshing = false;
-
-          sessionStorage.removeItem("accessToken");
-          sessionStorage.removeItem("refreshToken");
-          sessionStorage.removeItem("user");
-
-          message.error("Phiên đăng nhập hết hạn. Vui lòng đăng nhập lại.");
-          window.location.href = "/login";
-          return Promise.reject(err);
-        });
     }
 
     return Promise.reject(error);

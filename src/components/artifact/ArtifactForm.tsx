@@ -63,6 +63,10 @@ const ArtifactForm: React.FC<Props> = ({ initialValues, onSuccess }) => {
         categoryId: values.categoryId || null,
       };
 
+        if (!initialValues) {
+      payload.code = values.code?.trim();
+    }
+
       let res;
       if (initialValues) {
         res = await artifactApi.update(initialValues._id, payload);
