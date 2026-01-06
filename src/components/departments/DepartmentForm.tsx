@@ -1,7 +1,8 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-// src/components/departments/DepartmentForm.tsx
 import React from "react";
 import { Form, Input } from "antd";
+
+const { TextArea } = Input;
 
 type Props = {
   form: any;
@@ -9,7 +10,11 @@ type Props = {
   loading?: boolean;
 };
 
-const DepartmentForm: React.FC<Props> = ({ form, onFinish, loading }) => {
+const DepartmentForm: React.FC<Props> = ({
+  form,
+  onFinish,
+  loading,
+}) => {
   return (
     <Form
       layout="vertical"
@@ -27,6 +32,19 @@ const DepartmentForm: React.FC<Props> = ({ form, onFinish, loading }) => {
         ]}
       >
         <Input placeholder="Ví dụ: IT, Kế toán..." />
+      </Form.Item>
+
+      {/* 👇 THÊM MÔ TẢ */}
+      <Form.Item
+        label="Mô tả"
+        name="description"
+      >
+        <TextArea
+          placeholder="Mô tả ngắn về chức năng phòng ban"
+          rows={3}
+          showCount
+          maxLength={255}
+        />
       </Form.Item>
     </Form>
   );

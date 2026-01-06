@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import React, { useEffect, useRef, useState, useMemo } from "react";
 import {
@@ -59,28 +58,25 @@ const UsersPage: React.FC = () => {
   const [searchParams] = useSearchParams();
   const [departments, setDepartments] = useState<Department[]>([]);
 
-
   const activeDepartments = departments.filter((d) => d.isActive);
 
   const departmentsForForm = useMemo(() => {
-  if (!editing) return activeDepartments;
+    if (!editing) return activeDepartments;
 
-  const currentDept = editing.department;
-  if (!currentDept) return activeDepartments;
+    const currentDept = editing.department;
+    if (!currentDept) return activeDepartments;
 
-  const exists = activeDepartments.some(
-    (d) => d._id === currentDept._id
-  );
+    const exists = activeDepartments.some((d) => d._id === currentDept._id);
 
-  if (exists) return activeDepartments;
+    if (exists) return activeDepartments;
 
-  // 👇 thêm phòng ban inactive hiện tại của user
-  return [...activeDepartments, currentDept];
-}, [editing, activeDepartments]);
-
+    // 👇 thêm phòng ban inactive hiện tại của user
+    return [...activeDepartments, currentDept];
+  }, [editing, activeDepartments]);
 
   const [form] = Form.useForm();
-  const { hasPermission, user: currentUser } = useAuth();
+  const { hasPermission } = useAuth();
+
 
   const canManage = hasPermission("ADMIN_PANEL");
 
@@ -337,13 +333,14 @@ const UsersPage: React.FC = () => {
                   onClick={() => openModal()}
                   size="large"
                   style={{
-                    borderRadius: 8,
                     background:
-                      "linear-gradient(135deg, #1890ff 0%, #096dd9 100%)",
+                      "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
                     border: "none",
-                    fontWeight: 500,
-                    padding: "0 24px",
+                    borderRadius: 8,
                     height: 40,
+                    padding: "0 20px",
+                    fontWeight: 600,
+                    boxShadow: "0 2px 8px rgba(102, 126, 234, 0.3)",
                   }}
                 >
                   Thêm người dùng

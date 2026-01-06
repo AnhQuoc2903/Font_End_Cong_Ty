@@ -17,31 +17,44 @@ type Department = {
   _id: string;
   name: string;
   isActive: boolean;
+  description?: string;
 };
 
 type Props = {
   data: Department[];
   loading: boolean;
+  currentPage: number;
+  total: number;
   canManage: boolean;
   onEdit: (record: Department) => void;
   onDelete: (id: string) => void;
-  onToggle: (id: string, isActive: boolean) => void; // ✅ THÊM
+  onToggle: (id: string, isActive: boolean) => void;
+  onPageChange: (page: number) => void;
 };
 
 const DepartmentTable: React.FC<Props> = ({
   data,
   loading,
+  currentPage,
+  total,
   canManage,
   onEdit,
   onDelete,
-  onToggle, // ✅ NHẬN
+  onToggle,
+  onPageChange,
 }) => {
   return (
     <Table
       rowKey="_id"
       loading={loading}
       dataSource={data}
-      pagination={false}
+      pagination={{
+        current: currentPage,
+        pageSize: 10,
+        total,
+        onChange: onPageChange,
+        showSizeChanger: false,
+      }}
       columns={[
         {
           title: "STT",
@@ -54,6 +67,17 @@ const DepartmentTable: React.FC<Props> = ({
           dataIndex: "name",
           render: (name) => <Text strong>{name}</Text>,
         },
+        {
+          title: "Mô tả",
+          dataIndex: "description",
+          render: (text) =>
+            text ? (
+              <span style={{ color: "#595959" }}>{text}</span>
+            ) : (
+              <span style={{ color: "#bfbfbf" }}>—</span>
+            ),
+        },
+
         {
           title: "Trạng thái",
           width: 140,
@@ -72,9 +96,7 @@ const DepartmentTable: React.FC<Props> = ({
             canManage ? (
               <Switch
                 checked={record.isActive}
-                onChange={(checked) =>
-                  onToggle(record._id, checked)
-                }
+                onChange={(checked) => onToggle(record._id, checked)}
               />
             ) : null,
         },
@@ -97,11 +119,7 @@ const DepartmentTable: React.FC<Props> = ({
                   okButtonProps={{ danger: true }}
                   onConfirm={() => onDelete(record._id)}
                 >
-                  <Button
-                    type="text"
-                    danger
-                    icon={<DeleteOutlined />}
-                  />
+                  <Button type="text" danger icon={<DeleteOutlined />} />
                 </Popconfirm>
               </Space>
             ) : null,
