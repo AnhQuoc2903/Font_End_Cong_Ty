@@ -4,12 +4,14 @@ import type { MenuProps } from "antd";
 import { Link, useLocation } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import {
-  UserOutlined,
   LogoutOutlined,
-  DashboardOutlined,
-  SettingOutlined,
   MenuFoldOutlined,
   MenuUnfoldOutlined,
+  TrophyOutlined,
+  AppstoreOutlined,
+  ApartmentOutlined,
+  TeamOutlined,
+  SafetyCertificateOutlined,
 } from "@ant-design/icons";
 
 const { Header, Content, Sider } = Layout;
@@ -48,6 +50,8 @@ const MainLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
       ? "/artifacts"
       : location.pathname.startsWith("/categories")
       ? "/categories"
+      : location.pathname.startsWith("/departments")
+      ? "/departments"
       : location.pathname.startsWith("/users")
       ? "/users"
       : location.pathname.startsWith("/roles")
@@ -58,12 +62,12 @@ const MainLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const menuItems = [
     {
       key: "/artifacts",
-      icon: <DashboardOutlined />,
+      icon: <TrophyOutlined />,
       label: <Link to="/artifacts">Hiện vật</Link>,
     },
     {
       key: "/categories",
-      icon: <SettingOutlined />,
+      icon: <AppstoreOutlined />,
       label: <Link to="/categories">Danh mục</Link>,
     },
   ];
@@ -71,13 +75,18 @@ const MainLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   if (hasPermission("ADMIN_PANEL")) {
     menuItems.push(
       {
+        key: "/departments",
+        icon: <ApartmentOutlined />,
+        label: <Link to="/departments">Phòng ban</Link>,
+      },
+      {
         key: "/users",
-        icon: <UserOutlined />,
+        icon: <TeamOutlined />,
         label: <Link to="/users">Người dùng</Link>,
       },
       {
         key: "/roles",
-        icon: <SettingOutlined />,
+        icon: <SafetyCertificateOutlined />,
         label: <Link to="/roles">Vai trò & Quyền</Link>,
       }
     );
@@ -234,39 +243,44 @@ const MainLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
             </div>
           </div>
 
-          <Dropdown menu={{ items: userMenuItems }} placement="bottomRight" trigger={["click"]}>
-  <div
-    style={{
-      display: "flex",
-      alignItems: "center",
-      gap: 12,
-      cursor: "pointer",
-      padding: "6px 12px",
-      borderRadius: 999,
-      transition: "background 0.2s",
-    }}
-  >
-    <div style={{ textAlign: "right", lineHeight: 1.2 }}>
-      <div style={{ fontSize: 14, fontWeight: 500, color: "#111827" }}>
-        {user?.fullName || "Người dùng"}
-      </div>
-      <div style={{ fontSize: 12, color: "#6b7280" }}>
-        {user?.roles?.[0] || "User"}
-      </div>
-    </div>
+          <Dropdown
+            menu={{ items: userMenuItems }}
+            placement="bottomRight"
+            trigger={["click"]}
+          >
+            <div
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: 12,
+                cursor: "pointer",
+                padding: "6px 12px",
+                borderRadius: 999,
+                transition: "background 0.2s",
+              }}
+            >
+              <div style={{ textAlign: "right", lineHeight: 1.2 }}>
+                <div
+                  style={{ fontSize: 14, fontWeight: 500, color: "#111827" }}
+                >
+                  {user?.fullName || "Người dùng"}
+                </div>
+                <div style={{ fontSize: 12, color: "#6b7280" }}>
+                  {user?.roles?.[0] || "User"}
+                </div>
+              </div>
 
-    <Avatar
-      size={36}
-      style={{
-        background: "#6366f1",
-        fontWeight: 600,
-      }}
-    >
-      {user?.fullName?.[0] || user?.email?.[0] || "U"}
-    </Avatar>
-  </div>
-</Dropdown>
-      
+              <Avatar
+                size={36}
+                style={{
+                  background: "#6366f1",
+                  fontWeight: 600,
+                }}
+              >
+                {user?.fullName?.[0] || user?.email?.[0] || "U"}
+              </Avatar>
+            </div>
+          </Dropdown>
         </Header>
 
         <Content

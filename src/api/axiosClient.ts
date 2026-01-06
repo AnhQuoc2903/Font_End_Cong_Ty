@@ -87,7 +87,9 @@ axiosClient.interceptors.response.use(
         localStorage.removeItem("user");
 
         message.error("Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.");
-        window.location.href = "/login";
+        setTimeout(() => {
+          window.location.href = "/login";
+        }, 1200);
         return Promise.reject(refreshError);
       }
     }

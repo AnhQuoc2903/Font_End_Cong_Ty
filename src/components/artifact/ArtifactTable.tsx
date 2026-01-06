@@ -1,5 +1,5 @@
 import React from "react";
-import { Table, Tag, Typography, Badge, Avatar, Tooltip } from "antd";
+import { Table, Tag, Typography, Badge, Avatar, Tooltip,Image } from "antd";
 import type { ColumnsType, TablePaginationConfig } from "antd/es/table";
 import { PictureOutlined } from "@ant-design/icons";
 import type { Artifact } from "./types";
@@ -119,23 +119,27 @@ export const ArtifactTable: React.FC<ArtifactTableProps> = ({
       title: "Ảnh",
       width: 110,
       align: "center",
-      render: (_, record) => (
-        <Avatar
-          size={100}
-          shape="square"
-          src={record.images?.[0]?.url}
-          style={{
-            borderRadius: 12,
-            border: "2px solid #f0f0f0",
-            boxShadow: "0 4px 12px rgba(0,0,0,0.08)",
-            background: "#fafafa",
-          }}
-        >
-          {!record.images?.length && (
-            <PictureOutlined style={{ fontSize: 32, color: "#bfbfbf" }} />
-          )}
-        </Avatar>
-      ),
+      render: (_, record) => {
+        const imageUrl = record.images?.[0]?.url;
+
+        return (
+          <div className="image-hover-wrapper">
+            {imageUrl ? (
+              <Image
+                src={imageUrl}
+                preview={{ src: imageUrl }}
+                width={100}
+                height={100}
+                style={{ borderRadius: 12, objectFit: "cover" }}
+              />
+            ) : (
+              <Avatar size={100} shape="square" className="image-placeholder">
+                <PictureOutlined style={{ fontSize: 32, color: "#bfbfbf" }} />
+              </Avatar>
+            )}
+          </div>
+        );
+      },
     },
 
     {

@@ -151,20 +151,6 @@ const LoginPage: React.FC = () => {
                 marginBottom: 24,
               }}
             >
-              <div style={{ display: "flex", alignItems: "center" }}>
-                <input
-                  type="checkbox"
-                  id="remember"
-                  style={{ marginRight: 8 }}
-                />
-                <label
-                  htmlFor="remember"
-                  style={{ fontSize: 14, color: "#666" }}
-                >
-                  Ghi nhớ đăng nhập
-                </label>
-              </div>
-
               <Link
                 to="/forgot-password"
                 style={{

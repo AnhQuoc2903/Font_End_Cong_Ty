@@ -9,12 +9,14 @@ import {
   Typography,
   Badge,
   Popconfirm,
+  Avatar,
 } from "antd";
 import {
   EditOutlined,
   DeleteOutlined,
   UserOutlined,
   MailOutlined,
+  MinusCircleOutlined,
 } from "@ant-design/icons";
 import type { ColumnsType } from "antd/es/table";
 
@@ -30,6 +32,12 @@ type UserTableProps = {
   onPageChange: (pagination: any) => void;
 };
 
+type Department = {
+  _id: string;
+  name: string;
+  isActive?: boolean;
+};
+
 type Role = { _id: string; name: string };
 type UserRow = {
   _id: string;
@@ -37,6 +45,7 @@ type UserRow = {
   fullName?: string;
   isActive?: boolean;
   roles?: Role[];
+  department?: Department;
 };
 
 const UserTable: React.FC<UserTableProps> = ({
@@ -55,7 +64,9 @@ const UserTable: React.FC<UserTableProps> = ({
       align: "center",
       width: 70,
       render: (_, __, index) => (
-        <Text style={{ fontWeight: 500 }}>{index + 1 + (currentPage - 1) * 10}</Text>
+        <Text style={{ fontWeight: 500 }}>
+          {index + 1 + (currentPage - 1) * 10}
+        </Text>
       ),
     },
     {
@@ -91,6 +102,102 @@ const UserTable: React.FC<UserTableProps> = ({
         </Space>
       ),
     },
+   {
+  title: "Phòng ban",
+  key: "department",
+  width: 180,
+  render: (_, record) => {
+    const department = record.department;
+
+    if (!department) {
+      return (
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            gap: 6,
+            color: "#8c8c8c",
+          }}
+        >
+          <MinusCircleOutlined style={{ fontSize: 12 }} />
+          <Text type="secondary" style={{ fontSize: 12 }}>
+            Chưa phân công
+          </Text>
+        </div>
+      );
+    }
+
+    const isActive = department.isActive === true;
+    
+    return (
+      <div
+        style={{
+          display: "flex",
+          alignItems: "center",
+          gap: 8,
+        }}
+      >
+        {/* Avatar nhỏ */}
+        <Tooltip title={department.name}>
+          <Avatar
+            size={28}
+            style={{
+              background: isActive ? "#13c2c2" : "#ff7875",
+              fontSize: 12,
+              fontWeight: 600,
+              flexShrink: 0,
+            }}
+          >
+            {department.name.charAt(0).toUpperCase()}
+          </Avatar>
+        </Tooltip>
+
+        {/* Tên và indicator */}
+        <div style={{ minWidth: 0 }}>
+          <Text
+            strong
+            style={{
+              fontSize: 12,
+              display: "block",
+              lineHeight: 1.2,
+              whiteSpace: "nowrap",
+              overflow: "hidden",
+              textOverflow: "ellipsis",
+            }}
+          >
+            {department.name}
+          </Text>
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: 4,
+              marginTop: 2,
+            }}
+          >
+            <div
+              style={{
+                width: 6,
+                height: 6,
+                borderRadius: "50%",
+                background: isActive ? "#52c41a" : "#ff4d4f",
+              }}
+            />
+            <Text
+              style={{
+                fontSize: 10,
+                color: isActive ? "#52c41a" : "#ff4d4f",
+              }}
+            >
+              {isActive ? "Đang hoạt động" : "Không hoạt động"}
+            </Text>
+          </div>
+        </div>
+      </div>
+    );
+  },
+},
+
     {
       title: "Trạng thái",
       key: "status",

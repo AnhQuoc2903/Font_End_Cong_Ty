@@ -3,14 +3,15 @@ import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider } from "./context/AuthContext";
 import PrivateRoute from "./components/PrivateRoute";
 import MainLayout from "./layout/MainLayout";
-import CategoriesPage from "./pages/CategoriesPage";
-import UsersPage from "./pages/UsersPage";
-import RolesPage from "./pages/RolesPage";
+import CategoriesPage from "./pages/categories/CategoriesPage";
+import UsersPage from "./pages/user/UsersPage";
+import RolesPage from "./pages/role/RolesPage";
 
 import LoginPage from "./pages/auth/LoginPage";
 import ForgotPasswordPage from "./pages/auth/ForgotPasswordPage";
 import ResetPasswordPage from "./pages/auth/ResetPasswordPage";
-import ArtifactsPage from "./pages/ArtifactsPage";
+import ArtifactsPage from "./pages/artifact/ArtifactsPage";
+import DepartmentPage from "./pages/department/DepartmentPage";
 
 const App: React.FC = () => {
   return (
@@ -53,6 +54,17 @@ const App: React.FC = () => {
           />
 
           <Route path="*" element={<Navigate to="/" replace />} />
+
+          <Route
+            path="/departments"
+            element={
+              <PrivateRoute requiredPermission="ADMIN_PANEL">
+                <MainLayout>
+                  <DepartmentPage />
+                </MainLayout>
+              </PrivateRoute>
+            }
+          />
 
           <Route
             path="/users"

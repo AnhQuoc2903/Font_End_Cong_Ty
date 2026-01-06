@@ -1,0 +1,11 @@
+.hover-row:hover {
+  background-color: #fafafa;
+  transition: background-color 0.3s ease;
+}
+.ant-table-thead > tr > th {
+  background-color: #fafafa !important;
+  font-weight: 600 !important;
+}
+.ant-tag {
+  margin: 0 !important;
+}

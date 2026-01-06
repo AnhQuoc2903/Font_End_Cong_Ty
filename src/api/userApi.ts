@@ -8,11 +8,19 @@ export const userApi = {
     password: string;
     fullName?: string;
     roleIds?: string[];
+    departmentId?: string;
   }) {
     return axiosClient.post("/users", data);
   },
-  /* eslint-disable @typescript-eslint/no-explicit-any */
-  update(id: string, data: any) {
+  update(
+    id: string,
+    data: {
+      fullName?: string;
+      roleIds?: string[];
+      departmentId?: string;
+      isActive?: boolean;
+    }
+  ) {
     return axiosClient.patch(`/users/${id}`, data);
   },
   remove(id: string) {

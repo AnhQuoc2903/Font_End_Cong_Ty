@@ -14,6 +14,21 @@ import {
 
 const { Title, Text } = Typography;
 
+const PERMISSION_LABELS: Record<string, string> = {
+  VIEW_ARTIFACT: "Xem hiện vật",
+  CREATE_ARTIFACT: "Tạo hiện vật",
+  EDIT_ARTIFACT: "Chỉnh sửa hiện vật",
+  DELETE_ARTIFACT: "Xóa hiện vật",
+
+  VIEW_CATEGORY: "Xem danh mục",
+  CREATE_CATEGORY: "Tạo danh mục",
+  EDIT_CATEGORY: "Chỉnh sửa danh mục",
+  DELETE_CATEGORY: "Xóa danh mục",
+
+  ADMIN_PANEL: "Truy cập trang quản trị",
+};
+
+
 type PrivateRouteProps = {
   children: React.ReactElement;
   requiredPermission?: string;
@@ -270,7 +285,11 @@ const PrivateRoute: React.FC<PrivateRouteProps> = ({
               strong
               style={{ display: "block", marginBottom: 32, color: "#ff4d4f" }}
             >
-              Yêu cầu quyền: {requiredPermission}
+              Cần quyền{" "}
+              <b>
+                {PERMISSION_LABELS[requiredPermission] || requiredPermission}
+              </b>{" "}
+              để truy cập chức năng này
             </Text>
 
             <Divider style={{ margin: "32px 0" }}>

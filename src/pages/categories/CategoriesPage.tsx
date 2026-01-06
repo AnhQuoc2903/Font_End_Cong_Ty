@@ -23,13 +23,13 @@ import {
   FolderAddOutlined,
 } from "@ant-design/icons";
 
-import { categoryApi } from "../api/categoryApi";
-import type { Category } from "../api/categoryApi";
-import { useAuth } from "../context/AuthContext";
+import { categoryApi } from "../../api/categoryApi";
+import type { Category } from "../../api/categoryApi";
+import { useAuth } from "../../context/AuthContext";
 
-import CategoryTable from "../components/categories/CategoryTable.tsx";
-import CategoryFormModal from "../components/categories/CategoryFormModal.tsx";
-import { normalize } from "../utils/category.utils";
+import CategoryTable from "../../components/categories/CategoryTable.tsx";
+import CategoryFormModal from "../../components/categories/CategoryFormModal.tsx";
+import { normalize } from "../../utils/category.utils";
 
 const { Title, Text } = Typography;
 const { Option } = Select;

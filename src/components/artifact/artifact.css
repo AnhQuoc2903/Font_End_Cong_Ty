@@ -1,0 +1,112 @@
+.stats-card {
+  transition: transform 0.25s ease, box-shadow 0.25s ease,
+    border-color 0.25s ease, background-color 0.25s ease;
+  cursor: pointer;
+}
+
+.stats-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.12);
+}
+
+/* Màu primary */
+.stats-card--primary {
+  background: rgba(24, 144, 255, 0.05);
+  border: 1px solid rgba(24, 144, 255, 0.2);
+}
+
+.stats-card--primary:hover {
+  background: rgba(24, 144, 255, 0.08);
+  border-color: rgba(24, 144, 255, 0.4);
+}
+
+.stats-card__icon {
+  font-size: 24px;
+  color: var(--primary-color, #1890ff);
+  opacity: 0.5;
+  transition: transform 0.25s ease, opacity 0.25s ease;
+}
+
+.stats-card:hover .stats-card__icon {
+  transform: scale(1.15);
+  opacity: 0.85;
+}
+
+/* SUCCESS */
+.stats-card--success {
+  background: rgba(82, 196, 26, 0.05);
+  border: 1px solid rgba(82, 196, 26, 0.2);
+}
+
+.stats-card--success:hover {
+  background: rgba(82, 196, 26, 0.1);
+  border-color: rgba(82, 196, 26, 0.4);
+}
+
+/* PRIMARY */
+.stats-card--primary {
+  background: rgba(24, 144, 255, 0.05);
+  border: 1px solid rgba(24, 144, 255, 0.2);
+}
+
+.stats-card--primary:hover {
+  background: rgba(24, 144, 255, 0.1);
+  border-color: rgba(24, 144, 255, 0.4);
+}
+
+/* ERROR */
+.stats-card--error {
+  background: rgba(245, 34, 45, 0.05);
+  border: 1px solid rgba(245, 34, 45, 0.2);
+}
+
+.stats-card--error:hover {
+  background: rgba(245, 34, 45, 0.1);
+  border-color: rgba(245, 34, 45, 0.4);
+}
+
+.stats-card__icon {
+  font-size: 24px;
+  opacity: 0.5;
+  transition: transform 0.25s ease, opacity 0.25s ease;
+}
+
+.stats-card:hover .stats-card__icon {
+  transform: scale(1.15);
+  opacity: 0.85;
+}
+
+.stats-card__icon--success {
+  color: #52c41a;
+}
+
+.stats-card__icon--primary {
+  color: #1890ff;
+}
+
+.stats-card__icon--error {
+  color: #f5222d;
+}
+
+.image-hover-wrapper {
+  position: relative;
+  width: 100px;
+  height: 100px;
+  border-radius: 12px;
+  overflow: hidden;
+  cursor: pointer;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.image-hover-wrapper:hover {
+  transform: scale(1.05);
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.18);
+}
+
+.image-placeholder {
+  background: #fafafa;
+  border: 2px dashed #e0e0e0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}

@@ -3,26 +3,26 @@ import React, { useEffect, useMemo, useRef, useState } from "react";
 import { Button, Modal, Form, message, Card, Space, Typography } from "antd";
 import { PlusOutlined, DeleteOutlined } from "@ant-design/icons";
 
-import { artifactApi } from "../api/artifactApi";
-import { aiApi } from "../api/aiApi";
-import { useAuth } from "../context/AuthContext";
+import { artifactApi } from "../../api/artifactApi";
+import { aiApi } from "../../api/aiApi";
+import { useAuth } from "../../context/AuthContext";
 import { useSearchParams } from "react-router-dom";
 
-import ArtifactFormModal from "../components/artifact/ArtifactFormModal";
-import StockModal from "../components/artifact/StockModal";
-import AdjustStockModal from "../components/artifact/AdjustStockModal";
-import HistoryModal from "../components/artifact/HistoryModal";
-import ArtifactDetailModal from "../components/artifact/ArtifactDetailModal";
-import GoogleSearchModal from "../components/artifact//GoogleSearchModal";
-import { ArtifactStatsCards } from "../components/artifact/ArtifactStatsCards";
-import SearchFilterBar from "../components/artifact/ArtifactFilterBar";
-import { ArtifactTable } from "../components/artifact/ArtifactTable";
+import ArtifactFormModal from "../../components/artifact/ArtifactFormModal";
+import StockModal from "../../components/artifact/StockModal";
+import AdjustStockModal from "../../components/artifact/AdjustStockModal";
+import HistoryModal from "../../components/artifact/HistoryModal";
+import ArtifactDetailModal from "../../components/artifact/ArtifactDetailModal";
+import GoogleSearchModal from "../../components/artifact//GoogleSearchModal";
+import { ArtifactStatsCards } from "../../components/artifact/ArtifactStatsCards";
+import SearchFilterBar from "../../components/artifact/ArtifactFilterBar";
+import { ArtifactTable } from "../../components/artifact/ArtifactTable";
 import type {
   Artifact,
   GoogleResult,
   ArtifactTransaction,
-} from "../components/artifact/types";
-import { socket } from "../socket";
+} from "../../components/artifact/types";
+import { socket } from "../../socket";
 
 const { Title, Text } = Typography;
 
@@ -317,12 +317,14 @@ const ArtifactsPage: React.FC = () => {
                 icon={<PlusOutlined />}
                 onClick={() => openModal("create")}
                 style={{
-                  height: 40,
-                  padding: "0 20px",
-                  borderRadius: 8,
-                  background: COLORS.primary,
-                  border: "none",
-                  boxShadow: "0 2px 0 rgba(0,0,0,0.045)",
+                   background:
+                      "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+                    border: "none",
+                    borderRadius: 8,
+                    height: 40,
+                    padding: "0 20px",
+                    fontWeight: 600,
+                    boxShadow: "0 2px 8px rgba(102, 126, 234, 0.3)",
                 }}
               >
                 Thêm hiện vật
