@@ -1,0 +1,116 @@
+/* DashboardPage.css */
+
+/* Animation cho stat cards */
+.stat-card-link {
+  position: relative;
+  overflow: hidden;
+  border-radius: 12px;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  display: block;
+}
+
+.stat-card-link:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.15);
+}
+
+.stat-card-link:hover .ant-card {
+  border-color: transparent !important;
+}
+
+.stat-card-link .ant-card {
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.stat-card-link .ant-card::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 3px;
+  background: linear-gradient(
+    90deg,
+    var(--card-color, #1890ff) 0%,
+    rgba(255, 255, 255, 0.8) 100%
+  );
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+  z-index: 2;
+}
+
+.stat-card-link:hover .ant-card::before {
+  transform: scaleX(1);
+}
+
+.stat-card-link .ant-card-body {
+  transition: all 0.3s ease;
+}
+
+.stat-card-link:hover .ant-card-body {
+  background: linear-gradient(135deg, #f5f7fa 0%, #ffffff 100%);
+}
+
+/* Animation cho icon */
+.stat-card-link:hover .ant-card-body .anticon {
+  transform: scale(1.1);
+  transition: transform 0.3s ease;
+}
+
+/* Responsive */
+@media (max-width: 576px) {
+  .stat-card-link:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
+  }
+}
+
+/* Thêm vào file CSS của bạn */
+
+.dashboard-card {
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  transition: box-shadow 0.3s;
+}
+
+.dashboard-card:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.transaction-item:hover,
+.stock-item:hover {
+  background-color: #fafafa;
+  transform: translateY(-2px);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+}
+
+.card-title-wrapper {
+  display: flex;
+  align-items: center;
+}
+
+/* Thêm vào file CSS của bạn */
+.dashboard-card {
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  transition: box-shadow 0.3s;
+}
+
+.dashboard-card:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.transaction-item:hover,
+.stock-item:hover {
+  background-color: #fafafa;
+  transform: translateY(-2px);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+}
+
+.card-title-wrapper {
+  display: flex;
+  align-items: center;
+}

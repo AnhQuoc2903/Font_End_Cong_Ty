@@ -13,6 +13,9 @@ import {
   Avatar,
   Spin,
   message,
+  Empty,
+  Alert,
+  Divider,
 } from "antd";
 import {
   TrophyOutlined,
@@ -24,12 +27,17 @@ import {
   DownloadOutlined,
   HistoryOutlined,
   WarningOutlined,
-  InboxOutlined,
   ArrowUpOutlined,
   ArrowDownOutlined,
   PieChartOutlined,
   BarChartOutlined,
   CheckCircleOutlined,
+  ExclamationCircleOutlined,
+  UserOutlined,
+  ClockCircleOutlined,
+  NumberOutlined,
+  FileTextOutlined,
+  FolderOutlined,
 } from "@ant-design/icons";
 import {
   BarChart,
@@ -54,6 +62,7 @@ import type { Category } from "../../api/categoryApi";
 import { Link } from "react-router-dom";
 import type { PieLabelRenderProps } from "recharts";
 import { dashboardApi } from "../../api/dashboardApi";
+import "./DashboardPage.css";
 
 const { Title, Text } = Typography;
 
@@ -82,7 +91,7 @@ interface ArtifactByCategory {
 interface RecentTransaction {
   _id: string;
   type: "IMPORT" | "EXPORT" | "ADJUST";
-  quantity: number;
+  quantityChange: number;
   previousQuantity: number;
   newQuantity: number;
   reason?: string;
@@ -153,6 +162,8 @@ const DashboardPage: React.FC = () => {
 
   const COLORS = ["#0088FE", "#00C49F", "#FFBB28", "#FF8042", "#8884D8"];
 
+  
+
   const fetchDashboardData = useCallback(async () => {
     try {
       setLoading(true);
@@ -198,38 +209,27 @@ const DashboardPage: React.FC = () => {
       );
 
       // Fetch recent transactions from first artifact (or all artifacts)
+      // ================= RECENT TRANSACTIONS =================
       let recentTransactionsList: RecentTransaction[] = [];
       let totalTransactions = 0;
       let importCount = 0;
       let exportCount = 0;
 
-      if (artifacts.length > 0) {
-        try {
-          // Get transactions for the first few artifacts
-          const artifactIds = artifacts.slice(0, 3).map((a: any) => a._id);
-          const transactionsPromises = artifactIds.map((id: string) =>
-            artifactApi.getTransactions(id).catch(() => ({ data: [] }))
-          );
+      try {
+        const recentTxRes = await dashboardApi.getRecentTransactions();
 
-          const transactionsResults = await Promise.all(transactionsPromises);
-          recentTransactionsList = transactionsResults
-            .flatMap((res: any) => res.data || [])
-            .sort(
-              (a: any, b: any) =>
-                new Date(b.createdAt).getTime() -
-                new Date(a.createdAt).getTime()
-            )
-            .slice(0, 10);
+        recentTransactionsList = recentTxRes.data || [];
 
-          // Count transaction types
-          recentTransactionsList.forEach((transaction: RecentTransaction) => {
-            totalTransactions++;
-            if (transaction.type === "IMPORT") importCount++;
-            if (transaction.type === "EXPORT") exportCount++;
-          });
-        } catch (error) {
-          console.error("Error fetching transactions:", error);
-        }
+        totalTransactions = recentTransactionsList.length;
+
+        recentTransactionsList.forEach((tx) => {
+          if (tx.type === "IMPORT") importCount++;
+          if (tx.type === "EXPORT") exportCount++;
+        });
+
+        setRecentTransactions(recentTransactionsList);
+      } catch (error) {
+        console.error("Error fetching recent transactions:", error);
       }
 
       // Prepare category data for chart
@@ -360,6 +360,7 @@ const DashboardPage: React.FC = () => {
     suffix,
     trend,
     loading: cardLoading,
+    className,
   }: {
     title: string;
     value: number | string;
@@ -369,8 +370,10 @@ const DashboardPage: React.FC = () => {
     suffix?: string;
     trend?: number;
     loading?: boolean;
+    className?: string;
   }) => (
     <Card
+      className={className}
       hoverable
       style={{
         height: "100%",
@@ -498,28 +501,134 @@ const DashboardPage: React.FC = () => {
   return (
     <div style={{ maxWidth: 1400, margin: "0 auto" }}>
       {/* Header */}
-      <Row justify="space-between" align="middle" style={{ marginBottom: 24 }}>
-        <Col>
-          <Space direction="vertical" size={0}>
-            <Title level={2} style={{ margin: 0 }}>
-              Chào mừng trở lại, {user?.fullName || "Quản trị viên"}!
-            </Title>
-            <Text type="secondary">
-              {new Date().toLocaleDateString("vi-VN", {
-                weekday: "long",
-                year: "numeric",
-                month: "long",
-                day: "numeric",
-              })}
-            </Text>
-          </Space>
-        </Col>
-      </Row>
+      <Row 
+  justify="space-between" 
+  align="middle" 
+  style={{ 
+    marginBottom: 32,
+    padding: '24px',
+    borderRadius: '16px',
+    background: 'linear-gradient(135deg, #f5f7fa 0%, #ffffff 100%)',
+    border: '1px solid #f0f0f0',
+    boxShadow: '0 4px 20px rgba(0, 0, 0, 0.05)',
+    position: 'relative',
+    overflow: 'hidden'
+  }}
+>
+  {/* Gradient overlay */}
+  <div style={{
+    position: 'absolute',
+    top: 0,
+    right: 0,
+    width: '200px',
+    height: '100%',
+    background: 'linear-gradient(135deg, transparent 0%, #1890ff10 100%)',
+    zIndex: 0
+  }} />
+  
+  <Col style={{ position: 'relative', zIndex: 1 }}>
+    <Space direction="vertical" size={8}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+        <div style={{
+          width: 48,
+          height: 48,
+          borderRadius: '12px',
+          background: 'linear-gradient(135deg, #1890ff, #36cfc9)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          boxShadow: '0 4px 12px rgba(24, 144, 255, 0.3)'
+        }}>
+          <UserOutlined style={{ fontSize: 24, color: 'white' }} />
+        </div>
+        <div>
+          <Title level={2} style={{ 
+            margin: 0,
+            background: 'linear-gradient(135deg, #1890ff, #36cfc9)',
+            WebkitBackgroundClip: 'text',
+            WebkitTextFillColor: 'transparent',
+            fontWeight: 700
+          }}>
+            Chào mừng trở lại, {user?.fullName?.split(' ')[0] || "Quản trị viên"}!
+          </Title>
+          <Text type="secondary" style={{ 
+            fontSize: '15px',
+            display: 'flex',
+            alignItems: 'center',
+            gap: 8
+          }}>
+            <ClockCircleOutlined />
+            {new Date().toLocaleDateString("vi-VN", {
+              weekday: "long",
+              year: "numeric",
+              month: "long",
+              day: "numeric",
+            })}
+          </Text>
+        </div>
+      </div>
+      
+      <div style={{
+        display: 'flex',
+        alignItems: 'center',
+        gap: 16,
+        flexWrap: 'wrap'
+      }}>
+        <Tag 
+          color="blue" 
+          icon={<CheckCircleOutlined />}
+          style={{
+            borderRadius: '20px',
+            padding: '4px 12px',
+            fontSize: '13px',
+            fontWeight: 500
+          }}
+        >
+          Phiên làm việc: {new Date().toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' })}
+        </Tag>
+        <Tag 
+          color="green" 
+          icon={<TeamOutlined />}
+          style={{
+            borderRadius: '20px',
+            padding: '4px 12px',
+            fontSize: '13px',
+            fontWeight: 500
+          }}
+        >
+          {user?.roles?.join(', ') || 'Người dùng'}
+        </Tag>
+        <Tag 
+          color="purple" 
+          icon={<ApartmentOutlined />}
+          style={{
+            borderRadius: '20px',
+            padding: '4px 12px',
+            fontSize: '13px',
+            fontWeight: 500
+          }}
+        >
+          {user?.department?.name || "Toàn hệ thống"}
+        </Tag>
+      </div>
+    </Space>
+  </Col>
+  
+  
+</Row>
 
       {/* Stats Cards */}
       <Row gutter={[16, 16]} style={{ marginBottom: 24 }}>
         <Col xs={24} sm={12} lg={6}>
-          <Link to="/artifacts" style={{ textDecoration: "none" }}>
+          <Link
+            to="/artifacts"
+            className="stat-card-link"
+            style={{
+              textDecoration: "none",
+              display: "block",
+              transition: "all 0.3s ease",
+            }}
+          >
             <StatCard
               title="Tổng hiện vật"
               value={stats.totalArtifacts}
@@ -527,39 +636,70 @@ const DashboardPage: React.FC = () => {
               color="#1890ff"
               trend={stats.growthRate}
               loading={loading}
+              className="stat-card-with-hover"
             />
           </Link>
         </Col>
+
         <Col xs={24} sm={12} lg={6}>
-          <Link to="/categories" style={{ textDecoration: "none" }}>
+          <Link
+            to="/categories"
+            className="stat-card-link"
+            style={{
+              textDecoration: "none",
+              display: "block",
+              transition: "all 0.3s ease",
+            }}
+          >
             <StatCard
               title="Danh mục"
               value={stats.totalCategories}
               icon={<AppstoreOutlined />}
               color="#52c41a"
               loading={loading}
+              className="stat-card-with-hover"
             />
           </Link>
         </Col>
+
         <Col xs={24} sm={12} lg={6}>
-          <Link to="/users" style={{ textDecoration: "none" }}>
+          <Link
+            to="/users"
+            className="stat-card-link"
+            style={{
+              textDecoration: "none",
+              display: "block",
+              transition: "all 0.3s ease",
+            }}
+          >
             <StatCard
               title="Người dùng"
               value={stats.totalUsers}
               icon={<TeamOutlined />}
               color="#722ed1"
               loading={loading}
+              className="stat-card-with-hover"
             />
           </Link>
         </Col>
+
         <Col xs={24} sm={12} lg={6}>
-          <Link to="/departments" style={{ textDecoration: "none" }}>
+          <Link
+            to="/departments"
+            className="stat-card-link"
+            style={{
+              textDecoration: "none",
+              display: "block",
+              transition: "all 0.3s ease",
+            }}
+          >
             <StatCard
               title="Phòng ban"
               value={stats.totalDepartments}
               icon={<ApartmentOutlined />}
               color="#fa8c16"
               loading={loading}
+              className="stat-card-with-hover"
             />
           </Link>
         </Col>
@@ -567,17 +707,6 @@ const DashboardPage: React.FC = () => {
 
       {/* Second Row Stats */}
       <Row gutter={[16, 16]} style={{ marginBottom: 24 }}>
-        <Col xs={24} sm={12} lg={6}>
-          <Link to="/artifacts" style={{ textDecoration: "none" }}>
-            <StatCard
-              title="Hàng tồn thấp"
-              value={stats.lowStockArtifacts}
-              icon={<WarningOutlined />}
-              color="#f5222d"
-              loading={loading}
-            />
-          </Link>
-        </Col>
         <Col xs={24} sm={12} lg={6}>
           <StatCard
             title="Giao dịch tháng"
@@ -589,10 +718,29 @@ const DashboardPage: React.FC = () => {
         </Col>
         <Col xs={24} sm={12} lg={6}>
           <StatCard
-            title="Nhập / Xuất"
-            value={`${stats.importCount} / ${stats.exportCount}`}
-            icon={<InboxOutlined />}
-            color="#eb2f96"
+            title="Nhập kho"
+            value={stats.importCount}
+            icon={<ArrowUpOutlined />}
+            color="#52c41a"
+            loading={loading}
+          />
+        </Col>
+
+        <Col xs={24} sm={12} lg={6}>
+          <StatCard
+            title="Xuất kho"
+            value={stats.exportCount}
+            icon={<ArrowDownOutlined />}
+            color="#ff4d4f"
+            loading={loading}
+          />
+        </Col>
+        <Col xs={24} sm={12} lg={6}>
+          <StatCard
+            title="Hàng tồn thấp"
+            value={stats.lowStockArtifacts}
+            icon={<WarningOutlined />}
+            color="#f5222d"
             loading={loading}
           />
         </Col>
@@ -671,60 +819,160 @@ const DashboardPage: React.FC = () => {
       </Row>
 
       {/* Recent Activity and Low Stock */}
-      <Row gutter={[16, 16]} style={{ marginTop: 16 }}>
+      <Row gutter={[16, 24]} style={{ marginTop: 24 }}>
         {/* Recent Transactions */}
         <Col xs={24} lg={12}>
           <Card
             title={
-              <Space>
-                <HistoryOutlined />
-                <span>Giao dịch gần đây</span>
-              </Space>
+              <div className="card-title-wrapper">
+                <HistoryOutlined
+                  style={{ color: "#1890ff", fontSize: "18px" }}
+                />
+                <span style={{ fontWeight: 600, marginLeft: 8 }}>
+                  Giao dịch gần đây
+                </span>
+              </div>
             }
+            headStyle={{ borderBottom: "1px solid #f0f0f0" }}
+            bodyStyle={{ padding: "16px 8px" }}
+            className="dashboard-card"
           >
             {recentTransactions.length > 0 ? (
               <List
                 dataSource={recentTransactions}
-                renderItem={(transaction) => (
-                  <List.Item key={transaction._id}>
+                size="large"
+                style={{
+                  maxHeight: 420, // 👈 giới hạn chiều cao
+                  overflowY: "auto", // 👈 cho cuộn
+                  paddingRight: 8,
+                }}
+                renderItem={(transaction, index) => (
+                  <List.Item
+                    key={transaction._id}
+                    style={{
+                      padding: "12px 16px",
+                      borderBottom:
+                        index === recentTransactions.length - 1
+                          ? "none"
+                          : "1px solid #f5f5f5",
+                      transition: "all 0.3s",
+                      borderRadius: "6px",
+                      marginBottom: "4px",
+                    }}
+                    className="transaction-item"
+                  >
                     <List.Item.Meta
                       avatar={
                         <Avatar
+                          size={40}
                           style={{
                             backgroundColor: getTransactionColor(
                               transaction.type
                             ),
+                            boxShadow: "0 2px 4px rgba(0,0,0,0.1)",
                           }}
-                        >
-                          {getTransactionIcon(transaction.type)}
-                        </Avatar>
+                          icon={getTransactionIcon(transaction.type)}
+                        />
                       }
                       title={
-                        <Space>
-                          <Text strong>
+                        <div
+                          style={{
+                            display: "flex",
+                            justifyContent: "space-between",
+                            alignItems: "center",
+                          }}
+                        >
+                          <Text strong style={{ fontSize: "15px" }}>
                             {transaction.artifact?.name || "Hiện vật"}
                           </Text>
-
-                          <Tag color={getTransactionColor(transaction.type)}>
+                          <Tag
+                            color={getTransactionColor(transaction.type)}
+                            style={{
+                              borderRadius: "12px",
+                              fontWeight: 500,
+                              margin: 0,
+                            }}
+                          >
                             {transaction.type}
                           </Tag>
-                        </Space>
+                        </div>
                       }
                       description={
-                        <Space direction="vertical" size={0}>
-                          <Text type="secondary">
-                            {transaction.createdBy?.fullName ||
-                              "Không xác định"}{" "}
-                            •{" "}
-                            {new Date(transaction.createdAt).toLocaleString(
-                              "vi-VN"
-                            )}
-                          </Text>
+                        <Space
+                          direction="vertical"
+                          size={6}
+                          style={{ marginTop: 8 }}
+                        >
+                          <div
+                            style={{
+                              display: "flex",
+                              alignItems: "center",
+                              gap: "8px",
+                            }}
+                          >
+                            <UserOutlined
+                              style={{ fontSize: "12px", color: "#8c8c8c" }}
+                            />
+                            <Text type="secondary" style={{ fontSize: "13px" }}>
+                              {transaction.createdBy?.fullName ||
+                                "Không xác định"}
+                            </Text>
+                            <Divider
+                              type="vertical"
+                              style={{ height: "12px" }}
+                            />
+                            <ClockCircleOutlined
+                              style={{ fontSize: "12px", color: "#8c8c8c" }}
+                            />
+                            <Text type="secondary" style={{ fontSize: "13px" }}>
+                              {new Date(transaction.createdAt).toLocaleString(
+                                "vi-VN"
+                              )}
+                            </Text>
+                          </div>
 
-                          <Text>
-                            Số lượng: {transaction.quantity} • Lý do:{" "}
-                            {transaction.reason || "Không có"}
-                          </Text>
+                          <div
+                            style={{
+                              display: "flex",
+                              alignItems: "center",
+                              gap: "16px",
+                            }}
+                          >
+                            <div
+                              style={{
+                                display: "flex",
+                                alignItems: "center",
+                                gap: "4px",
+                              }}
+                            >
+                              <NumberOutlined
+                                style={{ fontSize: "12px", color: "#8c8c8c" }}
+                              />
+                              <Text>
+                                Số lượng:{" "}
+                                <Text strong>
+                                  {transaction.type === "ADJUST"
+                                    ? `${transaction.previousQuantity} → ${transaction.newQuantity}`
+                                    : Math.abs(transaction.quantityChange)}
+                                </Text>
+                              </Text>
+                            </div>
+
+                            <div
+                              style={{
+                                display: "flex",
+                                alignItems: "center",
+                                gap: "4px",
+                              }}
+                            >
+                              <FileTextOutlined
+                                style={{ fontSize: "12px", color: "#8c8c8c" }}
+                              />
+                              <Text style={{ fontSize: "13px" }}>
+                                Lý do: {transaction.reason || "Không có"}
+                              </Text>
+                            </div>
+                          </div>
                         </Space>
                       }
                     />
@@ -732,9 +980,15 @@ const DashboardPage: React.FC = () => {
                 )}
               />
             ) : (
-              <div style={{ textAlign: "center", padding: "20px" }}>
-                <Text type="secondary">Chưa có giao dịch nào</Text>
-              </div>
+              <Empty
+                image={Empty.PRESENTED_IMAGE_SIMPLE}
+                description={
+                  <Text type="secondary" style={{ fontSize: "14px" }}>
+                    Chưa có giao dịch nào
+                  </Text>
+                }
+                style={{ padding: "40px 0" }}
+              />
             )}
           </Card>
         </Col>
@@ -743,65 +997,156 @@ const DashboardPage: React.FC = () => {
         <Col xs={24} lg={12}>
           <Card
             title={
-              <Space>
-                <WarningOutlined />
-                <span>Hiện vật sắp hết hàng</span>
-              </Space>
+              <div className="card-title-wrapper">
+                <WarningOutlined
+                  style={{ color: "#faad14", fontSize: "18px" }}
+                />
+                <span style={{ fontWeight: 600, marginLeft: 8 }}>
+                  Hiện vật sắp hết hàng
+                </span>
+              </div>
             }
+            headStyle={{ borderBottom: "1px solid #f0f0f0" }}
+            bodyStyle={{ padding: "16px 8px" }}
+            className="dashboard-card"
           >
             {lowStockItems.length > 0 ? (
               <List
                 dataSource={lowStockItems}
-                renderItem={(item) => (
-                  <List.Item key={item._id}>
+                size="large"
+                renderItem={(item, index) => (
+                  <List.Item
+                    key={item._id}
+                    style={{
+                      padding: "12px 16px",
+                      borderBottom:
+                        index === lowStockItems.length - 1
+                          ? "none"
+                          : "1px solid #f5f5f5",
+                      transition: "all 0.3s",
+                      borderRadius: "6px",
+                      marginBottom: "4px",
+                    }}
+                    className="stock-item"
+                  >
                     <List.Item.Meta
                       avatar={
                         <Avatar
+                          size={40}
                           style={{
-                            backgroundColor: "#f5222d",
+                            backgroundColor:
+                              item.quantity === 0 ? "#ff4d4f" : "#faad14",
+                            boxShadow: "0 2px 4px rgba(0,0,0,0.1)",
                           }}
-                        >
-                          <WarningOutlined />
-                        </Avatar>
+                          icon={<WarningOutlined />}
+                        />
                       }
                       title={
-                        <Link to={`/artifacts/${item._id}`}>
-                          {item.name} ({item.code})
+                        <Link
+                          to={`/artifacts/${item._id}`}
+                          style={{
+                            fontSize: "15px",
+                            fontWeight: 500,
+                            display: "flex",
+                            alignItems: "center",
+                            gap: "8px",
+                          }}
+                        >
+                          {item.name}
+                          <Text type="secondary" style={{ fontSize: "12px" }}>
+                            ({item.code})
+                          </Text>
                         </Link>
                       }
                       description={
-                        <Space direction="vertical" size={0}>
-                          <Text type="secondary">
-                            Danh mục: {item.category?.name ?? "Chưa phân loại"}
-                          </Text>
-                          <Progress
-                            percent={
-                              item.minStockLevel
-                                ? Math.min(
-                                    (item.quantity / item.minStockLevel) * 100,
-                                    100
-                                  )
-                                : 0
-                            }
-                            status={
-                              item.quantity === 0 ? "exception" : "active"
-                            }
-                            size="small"
-                            showInfo={false}
-                          />
-
-                          <Text
-                            type={item.quantity === 0 ? "danger" : "warning"}
-                            style={{ fontSize: 12 }}
+                        <Space
+                          direction="vertical"
+                          size={12}
+                          style={{ marginTop: 8, width: "100%" }}
+                        >
+                          <div
+                            style={{
+                              display: "flex",
+                              alignItems: "center",
+                              gap: "8px",
+                            }}
                           >
-                            {item.quantity === 0
-                              ? `Hết hàng – cần nhập tối thiểu ${
-                                  item.minStockLevel ?? 0
-                                }`
-                              : item.minStockLevel
-                              ? `Còn ${item.quantity} / tối thiểu ${item.minStockLevel}`
-                              : `Còn ${item.quantity}`}
-                          </Text>
+                            <FolderOutlined
+                              style={{ fontSize: "12px", color: "#8c8c8c" }}
+                            />
+                            <Text type="secondary" style={{ fontSize: "13px" }}>
+                              {item.category?.name || "Chưa phân loại"}
+                            </Text>
+                          </div>
+
+                          <div style={{ width: "100%" }}>
+                            <div
+                              style={{
+                                display: "flex",
+                                justifyContent: "space-between",
+                                marginBottom: 4,
+                              }}
+                            >
+                              <Text
+                                type="secondary"
+                                style={{ fontSize: "12px" }}
+                              >
+                                Mức tồn kho
+                              </Text>
+                              <Text
+                                type={
+                                  item.quantity === 0 ? "danger" : "warning"
+                                }
+                                style={{ fontSize: "12px", fontWeight: 500 }}
+                              >
+                                {item.minStockLevel
+                                  ? `${item.quantity} / ${item.minStockLevel}`
+                                  : `${item.quantity}`}
+                              </Text>
+                            </div>
+                            <Progress
+                              percent={
+                                item.minStockLevel
+                                  ? Math.min(
+                                      (item.quantity / item.minStockLevel) *
+                                        100,
+                                      100
+                                    )
+                                  : 0
+                              }
+                              status={
+                                item.quantity === 0
+                                  ? "exception"
+                                  : item.quantity <=
+                                    (item.minStockLevel || 0) * 0.3
+                                  ? "active"
+                                  : "normal"
+                              }
+                              strokeColor={
+                                item.quantity === 0 ? "#ff4d4f" : "#faad14"
+                              }
+                              size="small"
+                              showInfo={false}
+                              style={{ margin: 0 }}
+                            />
+                          </div>
+
+                          {item.quantity === 0 && (
+                            <Alert
+                              message={`Cần nhập tối thiểu ${
+                                item.minStockLevel || 0
+                              }`}
+                              type="error"
+                              showIcon
+                              icon={<ExclamationCircleOutlined />}
+                              style={{
+                                fontSize: "12px",
+                                padding: "4px 8px",
+                                borderRadius: "4px",
+                                marginTop: "4px",
+                              }}
+                            />
+                          )}
                         </Space>
                       }
                     />
@@ -809,9 +1154,15 @@ const DashboardPage: React.FC = () => {
                 )}
               />
             ) : (
-              <div style={{ textAlign: "center", padding: "20px" }}>
-                <Text type="secondary">Không có hiện vật nào sắp hết hàng</Text>
-              </div>
+              <Empty
+                image={Empty.PRESENTED_IMAGE_SIMPLE}
+                description={
+                  <Text type="secondary" style={{ fontSize: "14px" }}>
+                    Không có hiện vật nào sắp hết hàng
+                  </Text>
+                }
+                style={{ padding: "40px 0" }}
+              />
             )}
           </Card>
         </Col>
@@ -837,12 +1188,12 @@ const DashboardPage: React.FC = () => {
             </Col>
             <Col xs={24} sm={12} md={8} lg={6}>
               <QuickAction
-                icon={<InboxOutlined />}
-                title="Nhập kho"
-                description="Nhập hiện vật vào kho"
+                icon={<ApartmentOutlined />}
+                title="Phòng ban"
+                description="Thêm phòng ban mới vào hệ thống"
                 color="#52c41a"
                 action={() => {
-                  window.location.href = "/artifacts?action=import";
+                  window.location.href = "/departments";
                 }}
               />
             </Col>

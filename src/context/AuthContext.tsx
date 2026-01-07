@@ -3,13 +3,26 @@ import React, { createContext, useContext, useEffect, useState } from "react";
 import { authApi } from "../api/authApi";
 import { message } from "antd";
 
+export interface Department {
+  _id: string;
+  name: string;
+  description?: string;
+}
+
+type Role = {
+  _id: string;
+  name: string;
+};
+
 type User = {
-  id: string;
+  _id: string;          // ✅ ĐÚNG
   email: string;
   fullName?: string;
-  roles?: string[];
+  roles?: Role[];       // ✅ backend populate role
   permissions?: string[];
+  department?: Department; // ✅ đã có
 };
+
 
 type AuthContextType = {
   user: User | null;

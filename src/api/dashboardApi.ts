@@ -15,4 +15,7 @@ export const dashboardApi = {
       responseType: "blob",
     });
   },
+  getRecentTransactions() {
+    return axiosClient.get("/dashboard/recent-transactions");
+  },
 };
