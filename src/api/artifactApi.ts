@@ -53,4 +53,12 @@ export const artifactApi = {
       responseType: "blob",
     });
   },
+  exportTransactionsExcel(artifactId: string) {
+    return axiosClient.get(
+      `/artifacts/${artifactId}/transactions/export-excel`,
+      {
+        responseType: "blob",
+      }
+    );
+  },
 };

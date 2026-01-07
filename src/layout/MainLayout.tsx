@@ -12,6 +12,7 @@ import {
   ApartmentOutlined,
   TeamOutlined,
   SafetyCertificateOutlined,
+  DashboardOutlined,
 } from "@ant-design/icons";
 
 const { Header, Content, Sider } = Layout;
@@ -45,21 +46,29 @@ const MainLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
     );
   }
 
-  const selectedKeys = [
-    location.pathname.startsWith("/artifacts")
-      ? "/artifacts"
-      : location.pathname.startsWith("/categories")
-      ? "/categories"
-      : location.pathname.startsWith("/departments")
-      ? "/departments"
-      : location.pathname.startsWith("/users")
-      ? "/users"
-      : location.pathname.startsWith("/roles")
-      ? "/roles"
-      : location.pathname,
-  ];
+const selectedKeys = [
+  location.pathname.startsWith("/dashboard")
+    ? "/dashboard"
+    : location.pathname.startsWith("/artifacts")
+    ? "/artifacts"
+    : location.pathname.startsWith("/categories")
+    ? "/categories"
+    : location.pathname.startsWith("/departments")
+    ? "/departments"
+    : location.pathname.startsWith("/users")
+    ? "/users"
+    : location.pathname.startsWith("/roles")
+    ? "/roles"
+    : location.pathname,
+];
+
 
   const menuItems = [
+    {
+      key: "/dashboard",
+      icon: <DashboardOutlined />,
+      label: <Link to="/dashboard">Dashboard</Link>,
+    },
     {
       key: "/artifacts",
       icon: <TrophyOutlined />,

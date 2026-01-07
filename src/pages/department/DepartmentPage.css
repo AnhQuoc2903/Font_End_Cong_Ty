@@ -1,0 +1,120 @@
+/* src/styles/department.css */
+.department-card {
+  transition: all 0.3s ease;
+  border-radius: 12px;
+}
+
+.department-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+}
+
+.stat-card {
+  border-radius: 8px;
+  transition: all 0.3s ease;
+}
+
+.stat-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.search-input .ant-input {
+  border-radius: 8px;
+}
+
+.action-button {
+  border-radius: 6px;
+  transition: all 0.2s ease;
+}
+
+.action-button:hover {
+  transform: scale(1.05);
+}
+
+/* Thêm vào file CSS toàn cục */
+@keyframes float {
+  0%,
+  100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+@keyframes pulse {
+  0%,
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(1.05);
+    opacity: 0.8;
+  }
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: -200% center;
+  }
+  100% {
+    background-position: 200% center;
+  }
+}
+
+/* Hover effects */
+.stats-card:hover {
+  transform: translateY(-8px) scale(1.02) !important;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15) !important;
+}
+
+.stats-card:hover .card-glow {
+  opacity: 1;
+}
+
+.stats-card:hover .card-border-animation {
+  opacity: 1;
+  animation: shimmer 2s linear infinite;
+}
+
+.stats-card:hover .icon-container {
+  transform: scale(1.1) rotate(5deg);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.stats-card:hover .icon-container svg {
+  transform: scale(1.2);
+}
+
+.stats-card:hover .count-number {
+  text-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+.stats-card:hover .floating-icon {
+  transform: scale(1.1);
+  animation: pulse 1s ease-in-out infinite !important;
+}
+
+.stats-card:hover .percentage-tag {
+  transform: scale(1.05);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+.stats-card:hover .tag-glow {
+  left: 100%;
+}
+
+/* Floating animation delay for different cards */
+.stats-card:nth-child(1) .floating-icon {
+  animation-delay: 0s;
+}
+
+.stats-card:nth-child(2) .floating-icon {
+  animation-delay: 0.5s;
+}
+
+.stats-card:nth-child(3) .floating-icon {
+  animation-delay: 1s;
+}

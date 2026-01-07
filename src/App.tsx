@@ -12,81 +12,96 @@ import ForgotPasswordPage from "./pages/auth/ForgotPasswordPage";
 import ResetPasswordPage from "./pages/auth/ResetPasswordPage";
 import ArtifactsPage from "./pages/artifact/ArtifactsPage";
 import DepartmentPage from "./pages/department/DepartmentPage";
+import DashboardPage from "./pages/dashboard/DashboardPage";
 
 const App: React.FC = () => {
   return (
     <AuthProvider>
       <BrowserRouter>
         <Routes>
-          <Route path="/login" element={<LoginPage />} />
-          <Route path="/forgot-password" element={<ForgotPasswordPage />} />
-          <Route path="/reset-password" element={<ResetPasswordPage />} />
+  <Route path="/login" element={<LoginPage />} />
+  <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+  <Route path="/reset-password" element={<ResetPasswordPage />} />
 
-          <Route
-            path="/artifacts"
-            element={
-              <PrivateRoute requiredPermission="VIEW_ARTIFACT">
-                <MainLayout>
-                  <ArtifactsPage />
-                </MainLayout>
-              </PrivateRoute>
-            }
-          />
+  <Route
+    path="/"
+    element={
+      <PrivateRoute requiredPermission="VIEW_ARTIFACT">
+        <Navigate to="/dashboard" replace />
+      </PrivateRoute>
+    }
+  />
 
-          <Route
-            path="/"
-            element={
-              <PrivateRoute requiredPermission="VIEW_ARTIFACT">
-                <Navigate to="/artifacts" replace />
-              </PrivateRoute>
-            }
-          />
+  <Route
+    path="/dashboard"
+    element={
+      <PrivateRoute requiredPermission="VIEW_ARTIFACT">
+        <MainLayout>
+          <DashboardPage />
+        </MainLayout>
+      </PrivateRoute>
+    }
+  />
 
-          <Route
-            path="/categories"
-            element={
-              <PrivateRoute requiredPermission="VIEW_ARTIFACT">
-                <MainLayout>
-                  <CategoriesPage />
-                </MainLayout>
-              </PrivateRoute>
-            }
-          />
+  <Route
+    path="/artifacts"
+    element={
+      <PrivateRoute requiredPermission="VIEW_ARTIFACT">
+        <MainLayout>
+          <ArtifactsPage />
+        </MainLayout>
+      </PrivateRoute>
+    }
+  />
 
-          <Route path="*" element={<Navigate to="/" replace />} />
+  <Route
+    path="/categories"
+    element={
+      <PrivateRoute requiredPermission="VIEW_ARTIFACT">
+        <MainLayout>
+          <CategoriesPage />
+        </MainLayout>
+      </PrivateRoute>
+    }
+  />
 
-          <Route
-            path="/departments"
-            element={
-              <PrivateRoute requiredPermission="ADMIN_PANEL">
-                <MainLayout>
-                  <DepartmentPage />
-                </MainLayout>
-              </PrivateRoute>
-            }
-          />
+  <Route
+    path="/departments"
+    element={
+      <PrivateRoute requiredPermission="ADMIN_PANEL">
+        <MainLayout>
+          <DepartmentPage />
+        </MainLayout>
+      </PrivateRoute>
+    }
+  />
 
-          <Route
-            path="/users"
-            element={
-              <PrivateRoute requiredPermission="ADMIN_PANEL">
-                <MainLayout>
-                  <UsersPage />
-                </MainLayout>
-              </PrivateRoute>
-            }
-          />
-          <Route
-            path="/roles"
-            element={
-              <PrivateRoute requiredPermission="ADMIN_PANEL">
-                <MainLayout>
-                  <RolesPage />
-                </MainLayout>
-              </PrivateRoute>
-            }
-          />
-        </Routes>
+  <Route
+    path="/users"
+    element={
+      <PrivateRoute requiredPermission="ADMIN_PANEL">
+        <MainLayout>
+          <UsersPage />
+        </MainLayout>
+      </PrivateRoute>
+    }
+  />
+
+  <Route
+    path="/roles"
+    element={
+      <PrivateRoute requiredPermission="ADMIN_PANEL">
+        <MainLayout>
+          <RolesPage />
+        </MainLayout>
+      </PrivateRoute>
+    }
+  />
+
+  {/* 🚨 ALWAYS LAST */}
+  <Route path="*" element={<Navigate to="/" replace />} />
+</Routes>
+
       </BrowserRouter>
     </AuthProvider>
   );

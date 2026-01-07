@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { Button, Modal, Form, message, Card, Space, Typography } from "antd";
-import { PlusOutlined, DeleteOutlined } from "@ant-design/icons";
+import { PlusOutlined, DeleteOutlined, FileExcelOutlined } from "@ant-design/icons";
 
 import { artifactApi } from "../../api/artifactApi";
 import { aiApi } from "../../api/aiApi";
@@ -301,30 +301,54 @@ const ArtifactsPage: React.FC = () => {
           </div>
 
           <Space>
-            <Button
-              onClick={handleExportExcel}
-              style={{
-                height: 40,
-                padding: "0 20px",
-                borderRadius: 8,
-              }}
-            >
-              Xuất Excel
-            </Button>
+            {hasPermission("EXPORT_LIST_OF__ARTIFACT") && (
+              <Button
+                onClick={handleExportExcel}
+                icon={<FileExcelOutlined />}
+                style={{
+                  height: 40,
+                  padding: "0 20px",
+                  borderRadius: 8,
+                  background:
+                    "linear-gradient(135deg, #0a9f47 0%, #21c55d 100%)",
+                  border: "none",
+                  color: "#fff",
+                  fontWeight: 500,
+                  boxShadow: "0 2px 8px rgba(10, 159, 71, 0.3)",
+                  transition: "all 0.3s ease",
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.background =
+                    "linear-gradient(135deg, #0a9f47 0%, #16a34a 100%)";
+                  e.currentTarget.style.boxShadow =
+                    "0 4px 12px rgba(10, 159, 71, 0.4)";
+                  e.currentTarget.style.transform = "translateY(-1px)";
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.background =
+                    "linear-gradient(135deg, #0a9f47 0%, #21c55d 100%)";
+                  e.currentTarget.style.boxShadow =
+                    "0 2px 8px rgba(10, 159, 71, 0.3)";
+                  e.currentTarget.style.transform = "translateY(0)";
+                }}
+              >
+                Xuất Excel
+              </Button>
+            )}
             {hasPermission("CREATE_ARTIFACT") && (
               <Button
                 type="primary"
                 icon={<PlusOutlined />}
                 onClick={() => openModal("create")}
                 style={{
-                   background:
-                      "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
-                    border: "none",
-                    borderRadius: 8,
-                    height: 40,
-                    padding: "0 20px",
-                    fontWeight: 600,
-                    boxShadow: "0 2px 8px rgba(102, 126, 234, 0.3)",
+                  background:
+                    "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+                  border: "none",
+                  borderRadius: 8,
+                  height: 40,
+                  padding: "0 20px",
+                  fontWeight: 600,
+                  boxShadow: "0 2px 8px rgba(102, 126, 234, 0.3)",
                 }}
               >
                 Thêm hiện vật
@@ -384,9 +408,7 @@ const ArtifactsPage: React.FC = () => {
 
           setData((prev) =>
             prev.map((item) =>
-              item._id === updated._id
-                ? { ...item, ...updated } 
-                : item
+              item._id === updated._id ? { ...item, ...updated } : item
             )
           );
 
@@ -433,6 +455,7 @@ const ArtifactsPage: React.FC = () => {
       <HistoryModal
         open={historyOpen}
         loading={historyLoading}
+        artifactId={selectedArtifact?._id}
         artifactName={selectedArtifact?.name}
         history={history}
         onClose={() => setHistoryOpen(false)}
