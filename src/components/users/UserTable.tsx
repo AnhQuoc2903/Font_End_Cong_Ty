@@ -4,7 +4,6 @@ import {
   Table,
   Tag,
   Space,
-  Button,
   Tooltip,
   Typography,
   Badge,
@@ -17,8 +16,10 @@ import {
   UserOutlined,
   MailOutlined,
   MinusCircleOutlined,
+  HistoryOutlined,
 } from "@ant-design/icons";
 import type { ColumnsType } from "antd/es/table";
+import "./User.css"
 
 const { Text } = Typography;
 
@@ -30,6 +31,7 @@ type UserTableProps = {
   onEdit: (record: any) => void;
   onDelete: (id: string) => void;
   onPageChange: (pagination: any) => void;
+  onViewHistory: (userId: string) => void;
 };
 
 type Department = {
@@ -56,6 +58,7 @@ const UserTable: React.FC<UserTableProps> = ({
   onEdit,
   onDelete,
   onPageChange,
+  onViewHistory,
 }) => {
   const columns: ColumnsType<UserRow> = [
     {
@@ -102,101 +105,101 @@ const UserTable: React.FC<UserTableProps> = ({
         </Space>
       ),
     },
-   {
-  title: "Phòng ban",
-  key: "department",
-  width: 180,
-  render: (_, record) => {
-    const department = record.department;
+    {
+      title: "Phòng ban",
+      key: "department",
+      width: 180,
+      render: (_, record) => {
+        const department = record.department;
 
-    if (!department) {
-      return (
-        <div
-          style={{
-            display: "flex",
-            alignItems: "center",
-            gap: 6,
-            color: "#8c8c8c",
-          }}
-        >
-          <MinusCircleOutlined style={{ fontSize: 12 }} />
-          <Text type="secondary" style={{ fontSize: 12 }}>
-            Chưa phân công
-          </Text>
-        </div>
-      );
-    }
+        if (!department) {
+          return (
+            <div
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: 6,
+                color: "#8c8c8c",
+              }}
+            >
+              <MinusCircleOutlined style={{ fontSize: 12 }} />
+              <Text type="secondary" style={{ fontSize: 12 }}>
+                Chưa phân công
+              </Text>
+            </div>
+          );
+        }
 
-    const isActive = department.isActive === true;
-    
-    return (
-      <div
-        style={{
-          display: "flex",
-          alignItems: "center",
-          gap: 8,
-        }}
-      >
-        {/* Avatar nhỏ */}
-        <Tooltip title={department.name}>
-          <Avatar
-            size={28}
-            style={{
-              background: isActive ? "#13c2c2" : "#ff7875",
-              fontSize: 12,
-              fontWeight: 600,
-              flexShrink: 0,
-            }}
-          >
-            {department.name.charAt(0).toUpperCase()}
-          </Avatar>
-        </Tooltip>
+        const isActive = department.isActive === true;
 
-        {/* Tên và indicator */}
-        <div style={{ minWidth: 0 }}>
-          <Text
-            strong
-            style={{
-              fontSize: 12,
-              display: "block",
-              lineHeight: 1.2,
-              whiteSpace: "nowrap",
-              overflow: "hidden",
-              textOverflow: "ellipsis",
-            }}
-          >
-            {department.name}
-          </Text>
+        return (
           <div
             style={{
               display: "flex",
               alignItems: "center",
-              gap: 4,
-              marginTop: 2,
+              gap: 8,
             }}
           >
-            <div
-              style={{
-                width: 6,
-                height: 6,
-                borderRadius: "50%",
-                background: isActive ? "#52c41a" : "#ff4d4f",
-              }}
-            />
-            <Text
-              style={{
-                fontSize: 10,
-                color: isActive ? "#52c41a" : "#ff4d4f",
-              }}
-            >
-              {isActive ? "Đang hoạt động" : "Không hoạt động"}
-            </Text>
+            {/* Avatar nhỏ */}
+            <Tooltip title={department.name}>
+              <Avatar
+                size={28}
+                style={{
+                  background: isActive ? "#13c2c2" : "#ff7875",
+                  fontSize: 12,
+                  fontWeight: 600,
+                  flexShrink: 0,
+                }}
+              >
+                {department.name.charAt(0).toUpperCase()}
+              </Avatar>
+            </Tooltip>
+
+            {/* Tên và indicator */}
+            <div style={{ minWidth: 0 }}>
+              <Text
+                strong
+                style={{
+                  fontSize: 12,
+                  display: "block",
+                  lineHeight: 1.2,
+                  whiteSpace: "nowrap",
+                  overflow: "hidden",
+                  textOverflow: "ellipsis",
+                }}
+              >
+                {department.name}
+              </Text>
+              <div
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 4,
+                  marginTop: 2,
+                }}
+              >
+                <div
+                  style={{
+                    width: 6,
+                    height: 6,
+                    borderRadius: "50%",
+                    background: isActive ? "#52c41a" : "#ff4d4f",
+                  }}
+                />
+                <Text
+                  style={{
+                    fontSize: 10,
+                    color: isActive ? "#52c41a" : "#ff4d4f",
+                  }}
+                >
+                  {isActive ? "Đang hoạt động" : "Không hoạt động"}
+                </Text>
+              </div>
+            </div>
           </div>
-        </div>
-      </div>
-    );
-  },
-},
+        );
+      },
+    },
 
     {
       title: "Trạng thái",
@@ -220,35 +223,89 @@ const UserTable: React.FC<UserTableProps> = ({
       title: "Hành động",
       key: "action",
       align: "center",
-      width: 150,
+      width: 160,
       render: (_, record) =>
         canManage ? (
-          <Space>
-            <Tooltip title="Sửa">
-              <Button
-                type="text"
-                icon={<EditOutlined />}
-                onClick={() => onEdit(record)}
-                style={{ color: "#1890ff" }}
-              />
-            </Tooltip>
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "center",
+              gap: 8,
+              padding: "8px 0",
+            }}
+          >
+            {/* Edit - Blue */}
+            <div
+              className="action-button edit-action"
+              onClick={() => onEdit(record)}
+              title="Chỉnh sửa"
+              style={{
+                width: 32,
+                height: 32,
+                borderRadius: "6px",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                background: "linear-gradient(135deg, #e6f7ff 0%, #bae7ff 100%)",
+                border: "1px solid #91d5ff",
+                cursor: "pointer",
+                transition: "all 0.2s ease",
+              }}
+            >
+              <EditOutlined style={{ color: "#1890ff", fontSize: 14 }} />
+            </div>
+
+            {/* History - Purple */}
+            <div
+              className="action-button history-action"
+              onClick={() => onViewHistory(record._id)}
+              title="Lịch sử"
+              style={{
+                width: 32,
+                height: 32,
+                borderRadius: "6px",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                background: "linear-gradient(135deg, #f9f0ff 0%, #efdbff 100%)",
+                border: "1px solid #d3adf7",
+                cursor: "pointer",
+                transition: "all 0.2s ease",
+              }}
+            >
+              <HistoryOutlined style={{ color: "#722ed1", fontSize: 14 }} />
+            </div>
+
+            {/* Delete - Red */}
             <Popconfirm
               title="Xóa người dùng?"
-              description="Bạn có chắc chắn muốn xóa người dùng này?"
+              description="Thao tác này không thể hoàn tác"
               okText="Xóa"
               cancelText="Hủy"
               okButtonProps={{ danger: true }}
               onConfirm={() => onDelete(record._id)}
             >
-              <Tooltip title="Xóa">
-                <Button
-                  type="text"
-                  icon={<DeleteOutlined />}
-                  style={{ color: "#ff4d4f" }}
-                />
-              </Tooltip>
+              <div
+                className="action-button delete-action"
+                title="Xóa"
+                style={{
+                  width: 32,
+                  height: 32,
+                  borderRadius: "6px",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  background:
+                    "linear-gradient(135deg, #fff1f0 0%, #ffccc7 100%)",
+                  border: "1px solid #ffa39e",
+                  cursor: "pointer",
+                  transition: "all 0.2s ease",
+                }}
+              >
+                <DeleteOutlined style={{ color: "#ff4d4f", fontSize: 14 }} />
+              </div>
             </Popconfirm>
-          </Space>
+          </div>
         ) : null,
     },
   ];

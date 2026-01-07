@@ -30,6 +30,7 @@ import { departmentApi } from "../../api/departmentApi";
 import { useSearchParams } from "react-router-dom";
 import UserTable from "../../components/users/UserTable";
 import UserForm from "../../components/users/UserForm";
+import UserActivityModal from "../../components/users/UserActivityModal";
 
 const { Title, Text } = Typography;
 
@@ -57,6 +58,8 @@ const UsersPage: React.FC = () => {
   const [editing, setEditing] = useState<UserRow | null>(null);
   const [searchParams] = useSearchParams();
   const [departments, setDepartments] = useState<Department[]>([]);
+  const [historyUserId, setHistoryUserId] = useState<string | undefined>();
+  const [historyOpen, setHistoryOpen] = useState(false);
 
   const activeDepartments = departments.filter((d) => d.isActive);
 
@@ -76,7 +79,6 @@ const UsersPage: React.FC = () => {
 
   const [form] = Form.useForm();
   const { hasPermission } = useAuth();
-
 
   const canManage = hasPermission("ADMIN_PANEL");
 
@@ -203,6 +205,10 @@ const UsersPage: React.FC = () => {
 
   const handleEdit = (record: UserRow) => {
     openModal(record);
+  };
+  const openHistory = (userId: string) => {
+    setHistoryUserId(userId);
+    setHistoryOpen(true);
   };
 
   return (
@@ -360,9 +366,16 @@ const UsersPage: React.FC = () => {
             onEdit={handleEdit}
             onDelete={handleDelete}
             onPageChange={handleTableChange}
+            onViewHistory={openHistory}
           />
         </div>
       </Card>
+
+      <UserActivityModal
+        open={historyOpen}
+        userId={historyUserId}
+        onClose={() => setHistoryOpen(false)}
+      />
 
       {/* Modal thêm/sửa người dùng */}
       <Modal

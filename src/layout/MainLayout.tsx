@@ -13,6 +13,7 @@ import {
   TeamOutlined,
   SafetyCertificateOutlined,
   DashboardOutlined,
+  HistoryOutlined,
 } from "@ant-design/icons";
 
 const { Header, Content, Sider } = Layout;
@@ -46,22 +47,23 @@ const MainLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
     );
   }
 
-const selectedKeys = [
-  location.pathname.startsWith("/dashboard")
-    ? "/dashboard"
-    : location.pathname.startsWith("/artifacts")
-    ? "/artifacts"
-    : location.pathname.startsWith("/categories")
-    ? "/categories"
-    : location.pathname.startsWith("/departments")
-    ? "/departments"
-    : location.pathname.startsWith("/users")
-    ? "/users"
-    : location.pathname.startsWith("/roles")
-    ? "/roles"
-    : location.pathname,
-];
-
+  const selectedKeys = [
+    location.pathname.startsWith("/dashboard")
+      ? "/dashboard"
+      : location.pathname.startsWith("/artifacts")
+      ? "/artifacts"
+      : location.pathname.startsWith("/categories")
+      ? "/categories"
+      : location.pathname.startsWith("/departments")
+      ? "/departments"
+      : location.pathname.startsWith("/activity-logs")
+      ? "/activity-logs"
+      : location.pathname.startsWith("/users")
+      ? "/users"
+      : location.pathname.startsWith("/roles")
+      ? "/roles"
+      : location.pathname,
+  ];
 
   const menuItems = [
     {
@@ -87,6 +89,11 @@ const selectedKeys = [
         key: "/departments",
         icon: <ApartmentOutlined />,
         label: <Link to="/departments">Phòng ban</Link>,
+      },
+      {
+        key: "/activity-logs",
+        icon: <HistoryOutlined />,
+        label: <Link to="/activity-logs">Lịch sử thao tác</Link>,
       },
       {
         key: "/users",
@@ -275,7 +282,9 @@ const selectedKeys = [
                   {user?.fullName || "Người dùng"}
                 </div>
                 <div style={{ fontSize: 12, color: "#6b7280" }}>
-                  {user?.roles?.[0] || "User"}
+                  {typeof user?.roles?.[0] === "string"
+                    ? user.roles[0]
+                    : user?.roles?.[0]?.name || "User"}
                 </div>
               </div>
 
