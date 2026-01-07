@@ -28,7 +28,6 @@ const PERMISSION_LABELS: Record<string, string> = {
   ADMIN_PANEL: "Truy cập trang quản trị",
 };
 
-
 type PrivateRouteProps = {
   children: React.ReactElement;
   requiredPermission?: string;
@@ -368,7 +367,12 @@ const PrivateRoute: React.FC<PrivateRouteProps> = ({
                   <UserOutlined style={{ color: "#52c41a" }} />
                   <Text type="secondary" style={{ fontSize: 13 }}>
                     Đăng nhập với tư cách: <Text strong>{user.email}</Text> •
-                    Vai trò: <Text strong>{user.roles?.[0] || "User"}</Text>
+                    Vai trò:
+                    <Text strong>
+                      {typeof user?.roles?.[0] === "string"
+                        ? user.roles[0]
+                        : user?.roles?.[0]?.name || "User"}
+                    </Text>
                   </Text>
                 </Space>
               </div>
