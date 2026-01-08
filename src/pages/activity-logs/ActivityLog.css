@@ -1,0 +1,8 @@
+.stat-card {
+  transition: all 0.3s ease;
+}
+
+.stat-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 40px rgba(79, 172, 254, 0.3);
+}

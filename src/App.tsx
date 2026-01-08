@@ -1,7 +1,7 @@
 import React from "react";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider } from "./context/AuthContext";
-import PrivateRoute from "./components/PrivateRoute";
+import PrivateRoute from "./components/private/PrivateRoute";
 import MainLayout from "./layout/MainLayout";
 import CategoriesPage from "./pages/categories/CategoriesPage";
 import UsersPage from "./pages/user/UsersPage";

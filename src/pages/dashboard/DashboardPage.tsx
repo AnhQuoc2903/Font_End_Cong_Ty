@@ -162,8 +162,6 @@ const DashboardPage: React.FC = () => {
 
   const COLORS = ["#0088FE", "#00C49F", "#FFBB28", "#FF8042", "#8884D8"];
 
-  
-
   const fetchDashboardData = useCallback(async () => {
     try {
       setLoading(true);
@@ -316,6 +314,12 @@ const DashboardPage: React.FC = () => {
       default:
         return "#d9d9d9";
     }
+  };
+
+  const TRANSACTION_LABEL: Record<string, string> = {
+    IMPORT: "Nhập kho",
+    EXPORT: "Xuất kho",
+    ADJUST: "Điều chỉnh",
   };
 
   const renderPieLabel = (props: PieLabelRenderProps) => {
@@ -501,121 +505,137 @@ const DashboardPage: React.FC = () => {
   return (
     <div style={{ maxWidth: 1400, margin: "0 auto" }}>
       {/* Header */}
-      <Row 
-  justify="space-between" 
-  align="middle" 
-  style={{ 
-    marginBottom: 32,
-    padding: '24px',
-    borderRadius: '16px',
-    background: 'linear-gradient(135deg, #f5f7fa 0%, #ffffff 100%)',
-    border: '1px solid #f0f0f0',
-    boxShadow: '0 4px 20px rgba(0, 0, 0, 0.05)',
-    position: 'relative',
-    overflow: 'hidden'
-  }}
->
-  {/* Gradient overlay */}
-  <div style={{
-    position: 'absolute',
-    top: 0,
-    right: 0,
-    width: '200px',
-    height: '100%',
-    background: 'linear-gradient(135deg, transparent 0%, #1890ff10 100%)',
-    zIndex: 0
-  }} />
-  
-  <Col style={{ position: 'relative', zIndex: 1 }}>
-    <Space direction="vertical" size={8}>
-      <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-        <div style={{
-          width: 48,
-          height: 48,
-          borderRadius: '12px',
-          background: 'linear-gradient(135deg, #1890ff, #36cfc9)',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          boxShadow: '0 4px 12px rgba(24, 144, 255, 0.3)'
-        }}>
-          <UserOutlined style={{ fontSize: 24, color: 'white' }} />
-        </div>
-        <div>
-          <Title level={2} style={{ 
-            margin: 0,
-            background: 'linear-gradient(135deg, #1890ff, #36cfc9)',
-            WebkitBackgroundClip: 'text',
-            WebkitTextFillColor: 'transparent',
-            fontWeight: 700
-          }}>
-            Chào mừng trở lại, {user?.fullName?.split(' ')[0] || "Quản trị viên"}!
-          </Title>
-          <Text type="secondary" style={{ 
-            fontSize: '15px',
-            display: 'flex',
-            alignItems: 'center',
-            gap: 8
-          }}>
-            <ClockCircleOutlined />
-            {new Date().toLocaleDateString("vi-VN", {
-              weekday: "long",
-              year: "numeric",
-              month: "long",
-              day: "numeric",
-            })}
-          </Text>
-        </div>
-      </div>
-      
-      <div style={{
-        display: 'flex',
-        alignItems: 'center',
-        gap: 16,
-        flexWrap: 'wrap'
-      }}>
-        <Tag 
-          color="blue" 
-          icon={<CheckCircleOutlined />}
+      <Row
+        justify="space-between"
+        align="middle"
+        style={{
+          marginBottom: 32,
+          padding: "24px",
+          borderRadius: "16px",
+          background: "linear-gradient(135deg, #f5f7fa 0%, #ffffff 100%)",
+          border: "1px solid #f0f0f0",
+          boxShadow: "0 4px 20px rgba(0, 0, 0, 0.05)",
+          position: "relative",
+          overflow: "hidden",
+        }}
+      >
+        {/* Gradient overlay */}
+        <div
           style={{
-            borderRadius: '20px',
-            padding: '4px 12px',
-            fontSize: '13px',
-            fontWeight: 500
+            position: "absolute",
+            top: 0,
+            right: 0,
+            width: "200px",
+            height: "100%",
+            background:
+              "linear-gradient(135deg, transparent 0%, #1890ff10 100%)",
+            zIndex: 0,
           }}
-        >
-          Phiên làm việc: {new Date().toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' })}
-        </Tag>
-        <Tag 
-          color="green" 
-          icon={<TeamOutlined />}
-          style={{
-            borderRadius: '20px',
-            padding: '4px 12px',
-            fontSize: '13px',
-            fontWeight: 500
-          }}
-        >
-          {user?.roles?.join(', ') || 'Người dùng'}
-        </Tag>
-        <Tag 
-          color="purple" 
-          icon={<ApartmentOutlined />}
-          style={{
-            borderRadius: '20px',
-            padding: '4px 12px',
-            fontSize: '13px',
-            fontWeight: 500
-          }}
-        >
-          {user?.department?.name || "Toàn hệ thống"}
-        </Tag>
-      </div>
-    </Space>
-  </Col>
-  
-  
-</Row>
+        />
+
+        <Col style={{ position: "relative", zIndex: 1 }}>
+          <Space direction="vertical" size={8}>
+            <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+              <div
+                style={{
+                  width: 48,
+                  height: 48,
+                  borderRadius: "12px",
+                  background: "linear-gradient(135deg, #1890ff, #36cfc9)",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  boxShadow: "0 4px 12px rgba(24, 144, 255, 0.3)",
+                }}
+              >
+                <UserOutlined style={{ fontSize: 24, color: "white" }} />
+              </div>
+              <div>
+                <Title
+                  level={2}
+                  style={{
+                    margin: 0,
+                    background: "linear-gradient(135deg, #1890ff, #36cfc9)",
+                    WebkitBackgroundClip: "text",
+                    WebkitTextFillColor: "transparent",
+                    fontWeight: 700,
+                  }}
+                >
+                  Chào mừng trở lại,{" "}
+                  {user?.fullName?.split(" ")[0] || "Quản trị viên"}!
+                </Title>
+                <Text
+                  type="secondary"
+                  style={{
+                    fontSize: "15px",
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 8,
+                  }}
+                >
+                  <ClockCircleOutlined />
+                  {new Date().toLocaleDateString("vi-VN", {
+                    weekday: "long",
+                    year: "numeric",
+                    month: "long",
+                    day: "numeric",
+                  })}
+                </Text>
+              </div>
+            </div>
+
+            <div
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: 16,
+                flexWrap: "wrap",
+              }}
+            >
+              <Tag
+                color="blue"
+                icon={<CheckCircleOutlined />}
+                style={{
+                  borderRadius: "20px",
+                  padding: "4px 12px",
+                  fontSize: "13px",
+                  fontWeight: 500,
+                }}
+              >
+                Phiên làm việc:{" "}
+                {new Date().toLocaleTimeString("vi-VN", {
+                  hour: "2-digit",
+                  minute: "2-digit",
+                })}
+              </Tag>
+              <Tag
+                color="green"
+                icon={<TeamOutlined />}
+                style={{
+                  borderRadius: "20px",
+                  padding: "4px 12px",
+                  fontSize: "13px",
+                  fontWeight: 500,
+                }}
+              >
+                {user?.roles?.join(", ") || "Người dùng"}
+              </Tag>
+              <Tag
+                color="purple"
+                icon={<ApartmentOutlined />}
+                style={{
+                  borderRadius: "20px",
+                  padding: "4px 12px",
+                  fontSize: "13px",
+                  fontWeight: 500,
+                }}
+              >
+                {user?.department?.name || "Toàn hệ thống"}
+              </Tag>
+            </div>
+          </Space>
+        </Col>
+      </Row>
 
       {/* Stats Cards */}
       <Row gutter={[16, 16]} style={{ marginBottom: 24 }}>
@@ -893,7 +913,8 @@ const DashboardPage: React.FC = () => {
                               margin: 0,
                             }}
                           >
-                            {transaction.type}
+                            {TRANSACTION_LABEL[transaction.type] ||
+                              transaction.type}
                           </Tag>
                         </div>
                       }

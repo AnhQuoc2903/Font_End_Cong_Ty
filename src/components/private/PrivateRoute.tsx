@@ -1,6 +1,6 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
-import { useAuth } from "../context/AuthContext";
+import { useAuth } from "../../context/AuthContext";
 import { Spin, Button, Card, Typography, Space, Divider } from "antd";
 import {
   ArrowLeftOutlined,

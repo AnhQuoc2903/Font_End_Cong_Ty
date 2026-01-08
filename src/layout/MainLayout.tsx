@@ -56,10 +56,10 @@ const MainLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
       ? "/categories"
       : location.pathname.startsWith("/departments")
       ? "/departments"
-      : location.pathname.startsWith("/activity-logs")
-      ? "/activity-logs"
       : location.pathname.startsWith("/users")
       ? "/users"
+      : location.pathname.startsWith("/activity-logs")
+      ? "/activity-logs"
       : location.pathname.startsWith("/roles")
       ? "/roles"
       : location.pathname,
@@ -91,14 +91,14 @@ const MainLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
         label: <Link to="/departments">Phòng ban</Link>,
       },
       {
-        key: "/activity-logs",
-        icon: <HistoryOutlined />,
-        label: <Link to="/activity-logs">Lịch sử thao tác</Link>,
-      },
-      {
         key: "/users",
         icon: <TeamOutlined />,
         label: <Link to="/users">Người dùng</Link>,
+      },
+      {
+        key: "/activity-logs",
+        icon: <HistoryOutlined />,
+        label: <Link to="/activity-logs">Lịch sử thao tác</Link>,
       },
       {
         key: "/roles",
