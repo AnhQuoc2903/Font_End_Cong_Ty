@@ -13,14 +13,18 @@ import {
   Statistic,
   Tooltip,
   Select,
+  Divider,
 } from "antd";
 import { useSearchParams } from "react-router-dom";
 import {
   PlusOutlined,
   SearchOutlined,
-  FilterOutlined,
   ReloadOutlined,
-  FolderAddOutlined,
+  FolderOutlined,
+  SortAscendingOutlined,
+  TagOutlined,
+  DatabaseOutlined,
+  ClockCircleOutlined,
 } from "@ant-design/icons";
 
 import { categoryApi } from "../../api/categoryApi";
@@ -55,6 +59,16 @@ const CategoriesPage: React.FC = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const page = parseInt(searchParams.get("page") || "1", 10);
 
+  const vibrantColors = {
+    primary: "#7c3aed",
+    success: "#10b981",
+    warning: "#f59e0b",
+    error: "#ef4444",
+    info: "#3b82f6",
+    gradientStart: "#8b5cf6",
+    gradientEnd: "#3b82f6",
+  };
+
   const fetchData = async () => {
     try {
       setLoading(true);
@@ -72,8 +86,18 @@ const CategoriesPage: React.FC = () => {
     } catch (err) {
       console.error(err);
       message.error({
-        content: "Lỗi tải danh sách danh mục",
-        duration: 4,
+        content: (
+          <Space>
+            <Text strong style={{ color: vibrantColors.error }}>
+              Lỗi tải danh sách danh mục
+            </Text>
+          </Space>
+        ),
+        style: {
+          background: `linear-gradient(135deg, ${vibrantColors.error}15, ${vibrantColors.error}08)`,
+          border: `1px solid ${vibrantColors.error}30`,
+          borderRadius: 12,
+        },
       });
     } finally {
       setLoading(false);
@@ -87,6 +111,7 @@ const CategoriesPage: React.FC = () => {
         window.clearTimeout(debounceRef.current);
       }
     };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   /* ===================== SEARCH ===================== */
@@ -122,6 +147,8 @@ const CategoriesPage: React.FC = () => {
           new Date(b.createdAt || 0).getTime() -
           new Date(a.createdAt || 0).getTime()
         );
+      } else if (value === "artifactCount") {
+        return (b.artifactCount || 0) - (a.artifactCount || 0);
       }
       return 0;
     });
@@ -136,75 +163,135 @@ const CategoriesPage: React.FC = () => {
   const handleDelete = (id: string) => {
     Modal.confirm({
       title: (
-        <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
           <div
             style={{
-              width: 36,
-              height: 36,
-              background: "linear-gradient(135deg, #ff4d4f 0%, #ff7875 100%)",
-              borderRadius: 8,
+              width: 52,
+              height: 52,
+              background: `linear-gradient(135deg, ${vibrantColors.error}, #dc2626)`,
+              borderRadius: 14,
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
+              boxShadow: `0 6px 24px ${vibrantColors.error}40`,
             }}
           >
-            <FolderAddOutlined style={{ fontSize: 18, color: "#fff" }} />
+            <FolderOutlined style={{ fontSize: 24, color: "#fff" }} />
           </div>
           <div>
-            <Title level={5} style={{ margin: 0 }}>
+            <Title level={4} style={{ margin: 0, color: vibrantColors.error }}>
               Xóa danh mục
             </Title>
-            <Text type="secondary" style={{ fontSize: 12 }}>
+            <Text type="secondary" style={{ fontSize: 13, marginTop: 4 }}>
               Hành động này không thể hoàn tác
             </Text>
           </div>
         </div>
       ),
       content: (
-        <div style={{ marginTop: 16 }}>
-          <Text>
-            Bạn có chắc chắn muốn xóa danh mục này? Tất cả hiện vật trong danh
-            mục sẽ được chuyển sang danh mục mặc định.
-          </Text>
+        <div style={{ marginTop: 20, marginBottom: 8 }}>
+          <Card
+            style={{
+              background: `linear-gradient(135deg, ${vibrantColors.error}08, ${vibrantColors.error}03)`,
+              border: `1px solid ${vibrantColors.error}20`,
+              borderRadius: 12,
+            }}
+            bodyStyle={{ padding: 16 }}
+          >
+            <Space direction="vertical" size={12}>
+              <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+                <div style={{
+                  width: 20,
+                  height: 20,
+                  borderRadius: "50%",
+                  background: vibrantColors.error,
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                }}>
+                  <Text style={{ color: "white", fontSize: 12, fontWeight: 700 }}>!</Text>
+                </div>
+                <Text strong style={{ fontSize: 14, color: vibrantColors.error }}>
+                  Thông tin quan trọng
+                </Text>
+              </div>
+              <Text style={{ fontSize: 14, lineHeight: 1.6, color: "#4b5563" }}>
+                Bạn có chắc chắn muốn xóa danh mục này? Tất cả hiện vật trong danh
+                mục sẽ được chuyển sang danh mục mặc định.
+              </Text>
+            </Space>
+          </Card>
         </div>
       ),
-      okText: "Xóa",
+      okText: (
+        <Space size={8}>
+          <FolderOutlined />
+          <span style={{ fontWeight: 600 }}>Xóa danh mục</span>
+        </Space>
+      ),
       cancelText: "Hủy",
       okButtonProps: {
         danger: true,
         style: {
-          background: "#ff4d4f",
+          background: `linear-gradient(135deg, ${vibrantColors.error}, #dc2626)`,
           border: "none",
-          borderRadius: 8,
-          padding: "0 24px",
-          height: 36,
+          borderRadius: 10,
+          padding: "0 28px",
+          height: 44,
+          fontWeight: 600,
+          boxShadow: `0 4px 16px ${vibrantColors.error}30`,
         },
       },
       cancelButtonProps: {
         style: {
-          borderRadius: 8,
-          padding: "0 24px",
-          height: 36,
+          borderRadius: 10,
+          padding: "0 28px",
+          height: 44,
+          fontWeight: 500,
+          border: `1px solid ${vibrantColors.primary}30`,
+          color: vibrantColors.primary,
         },
       },
       onOk: async () => {
         try {
           await categoryApi.delete(id);
           message.success({
-            content: "Đã xóa danh mục thành công",
-            icon: <FolderAddOutlined />,
+            content: (
+              <Space>
+                <Text strong style={{ color: vibrantColors.success, fontSize: 15 }}>
+                  Đã xóa danh mục thành công!
+                </Text>
+              </Space>
+            ),
+            style: {
+              background: `linear-gradient(135deg, ${vibrantColors.success}15, ${vibrantColors.success}08)`,
+              border: `1px solid ${vibrantColors.success}30`,
+              borderRadius: 12,
+            },
           });
           await fetchData();
           if (q) onSearchChange(q);
         } catch (err: any) {
           console.error(err);
           message.error({
-            content:
-              err?.response?.data?.message || "Xóa thất bại. Vui lòng thử lại.",
-            duration: 5,
+            content: (
+              <Space>
+                <Text strong style={{ color: vibrantColors.error }}>
+                  {err?.response?.data?.message || "Xóa thất bại. Vui lòng thử lại."}
+                </Text>
+              </Space>
+            ),
+            style: {
+              background: `linear-gradient(135deg, ${vibrantColors.error}15, ${vibrantColors.error}08)`,
+              border: `1px solid ${vibrantColors.error}30`,
+              borderRadius: 12,
+            },
           });
         }
       },
+      icon: null,
+      width: 500,
+      bodyStyle: { padding: 24 },
     });
   };
 
@@ -213,14 +300,34 @@ const CategoriesPage: React.FC = () => {
       if (editing) {
         await categoryApi.update(editing._id!, values);
         message.success({
-          content: "Cập nhật danh mục thành công",
-          icon: <FolderAddOutlined />,
+          content: (
+            <Space>
+              <Text strong style={{ color: vibrantColors.success, fontSize: 15 }}>
+                Cập nhật danh mục thành công!
+              </Text>
+            </Space>
+          ),
+          style: {
+            background: `linear-gradient(135deg, ${vibrantColors.success}15, ${vibrantColors.success}08)`,
+            border: `1px solid ${vibrantColors.success}30`,
+            borderRadius: 12,
+          },
         });
       } else {
         await categoryApi.create(values);
         message.success({
-          content: "Tạo danh mục thành công",
-          icon: <FolderAddOutlined />,
+          content: (
+            <Space>
+              <Text strong style={{ color: vibrantColors.success, fontSize: 15 }}>
+                Tạo danh mục thành công!
+              </Text>
+            </Space>
+          ),
+          style: {
+            background: `linear-gradient(135deg, ${vibrantColors.success}15, ${vibrantColors.success}08)`,
+            border: `1px solid ${vibrantColors.success}30`,
+            borderRadius: 12,
+          },
         });
       }
       setModalOpen(false);
@@ -229,8 +336,18 @@ const CategoriesPage: React.FC = () => {
     } catch (err: any) {
       console.error(err);
       message.error({
-        content: err?.response?.data?.message || "Lưu danh mục thất bại",
-        duration: 5,
+        content: (
+          <Space>
+            <Text strong style={{ color: vibrantColors.error }}>
+              {err?.response?.data?.message || "Lưu danh mục thất bại"}
+            </Text>
+          </Space>
+        ),
+        style: {
+          background: `linear-gradient(135deg, ${vibrantColors.error}15, ${vibrantColors.error}08)`,
+          border: `1px solid ${vibrantColors.error}30`,
+          borderRadius: 12,
+        },
       });
     }
   };
@@ -243,197 +360,363 @@ const CategoriesPage: React.FC = () => {
   // Stats
   const totalCategories = allData.length;
 
+
   /* ===================== RENDER ===================== */
   return (
-    <div style={{ padding: 0 }}>
-      {/* Header Section */}
-      <div style={{ marginBottom: 24 }}>
-        <Row gutter={[16, 16]} align="middle">
-          <Col xs={24} md={12}>
-            <div>
-              <Title
-                level={3}
-                style={{
-                  margin: 0,
-                  display: "flex",
-                  alignItems: "center",
-                  gap: 12,
-                }}
-              >
+    <div style={{ 
+      padding: 0,
+      position: "relative",
+      overflow: "hidden",
+    }}>
+      {/* Background Decorations */}
+      <div style={{
+        position: "absolute",
+        top: -100,
+        right: -100,
+        width: 300,
+        height: 300,
+        borderRadius: "50%",
+        background: `radial-gradient(circle, ${vibrantColors.primary}10 0%, transparent 70%)`,
+        pointerEvents: "none",
+        zIndex: 0,
+      }} />
+      
+      <div style={{
+        position: "absolute",
+        bottom: -150,
+        left: -150,
+        width: 400,
+        height: 400,
+        borderRadius: "50%",
+        background: `radial-gradient(circle, ${vibrantColors.info}10 0%, transparent 70%)`,
+        pointerEvents: "none",
+        zIndex: 0,
+      }} />
+
+      <div style={{ position: "relative", zIndex: 1 }}>
+        {/* Header Section */}
+        <Card
+          bordered={false}
+          style={{
+            marginBottom: 24,
+            borderRadius: 20,
+            boxShadow: `0 10px 40px ${vibrantColors.primary}15`,
+            border: `2px solid ${vibrantColors.primary}20`,
+            background: "rgba(255, 255, 255, 0.98)",
+            backdropFilter: "blur(10px)",
+            overflow: "hidden",
+            position: "relative",
+          }}
+          bodyStyle={{ padding: 32 }}
+        >
+          <div style={{
+            position: "absolute",
+            top: 0,
+            right: 0,
+            width: 120,
+            height: 120,
+            background: `radial-gradient(circle, ${vibrantColors.primary}15, transparent 70%)`,
+            borderRadius: "50%",
+            transform: "translate(30%, -30%)",
+            pointerEvents: "none",
+          }} />
+
+          <Row gutter={[24, 24]} align="middle">
+            <Col xs={24} md={12}>
+              <div style={{ display: "flex", alignItems: "center", gap: 20 }}>
                 <div
                   style={{
-                    width: 44,
-                    height: 44,
-                    background:
-                      "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
-                    borderRadius: 12,
+                    width: 64,
+                    height: 64,
+                    background: `linear-gradient(135deg, ${vibrantColors.gradientStart}, ${vibrantColors.gradientEnd})`,
+                    borderRadius: 16,
                     display: "flex",
                     alignItems: "center",
                     justifyContent: "center",
+                    boxShadow: `0 8px 32px ${vibrantColors.primary}40`,
                   }}
                 >
-                  <FolderAddOutlined style={{ fontSize: 24, color: "#fff" }} />
+                  <TagOutlined style={{ fontSize: 32, color: "#fff" }} />
                 </div>
-                <span>Quản lý danh mục</span>
-              </Title>
-              <Text type="secondary" style={{ marginTop: 8, display: "block" }}>
-                Quản lý và phân loại các danh mục hiện vật trong bảo tàng
-              </Text>
-            </div>
-          </Col>
+                <div>
+                  <Title
+                    level={2}
+                    style={{
+                      margin: 0,
+                      background: `linear-gradient(135deg, ${vibrantColors.gradientStart}, ${vibrantColors.gradientEnd})`,
+                      WebkitBackgroundClip: "text",
+                      WebkitTextFillColor: "transparent",
+                      backgroundClip: "text",
+                    }}
+                  >
+                    Quản lý danh mục
+                  </Title>
+                  <Text 
+                    type="secondary" 
+                    style={{ 
+                      marginTop: 8, 
+                      display: "block",
+                      fontSize: 15,
+                      color: vibrantColors.primary,
+                      fontWeight: 500,
+                    }}
+                  >
+                    <DatabaseOutlined style={{ marginRight: 8 }} />
+                    Quản lý và phân loại các danh mục hiện vật trong bảo tàng
+                  </Text>
+                </div>
+              </div>
+            </Col>
 
-          <Col xs={24} md={12}>
-            <div
-              style={{ display: "flex", justifyContent: "flex-end", gap: 16 }}
-            >
-              <Statistic
-                title="Tổng danh mục"
-                value={totalCategories}
-                prefix={<FolderAddOutlined style={{ color: "#667eea" }} />}
-                style={{ textAlign: "center" }}
-                valueStyle={{ fontSize: 24, fontWeight: 700 }}
-              />
-            </div>
-          </Col>
-        </Row>
-      </div>
-
-      <Card
-        style={{
-          marginBottom: 24,
-          borderRadius: 12,
-          border: "1px solid #f0f0f0",
-          boxShadow: "0 2px 8px rgba(0,0,0,0.04)",
-        }}
-        bodyStyle={{ padding: "20px 24px" }}
-      >
-        <Row gutter={[16, 16]} align="middle">
-          <Col xs={24} md={12}>
-            <Space size={16} wrap>
-              {hasPermission("CREATE_ARTIFACT") && (
-                <Button
-                  type="primary"
-                  onClick={() => openModal()}
-                  icon={<PlusOutlined />}
-                  style={{
-                    background:
-                      "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
-                    border: "none",
-                    borderRadius: 8,
-                    height: 40,
-                    padding: "0 20px",
-                    fontWeight: 600,
-                    boxShadow: "0 2px 8px rgba(102, 126, 234, 0.3)",
+            <Col xs={24} md={12}>
+              <div
+                style={{
+                  display: "flex",
+                  justifyContent: "flex-end",
+                  gap: 24,
+                  flexWrap: "wrap",
+                }}
+              >
+                <Statistic
+                  title={
+                    <Space size={6}>
+                      <FolderOutlined style={{ color: vibrantColors.primary }} />
+                      <Text style={{ color: vibrantColors.primary, fontWeight: 600 }}>
+                        Tổng danh mục
+                      </Text>
+                    </Space>
+                  }
+                  value={totalCategories}
+                  valueStyle={{ 
+                    fontSize: 32, 
+                    fontWeight: 800,
+                    color: vibrantColors.primary,
                   }}
-                >
-                  Thêm danh mục
-                </Button>
-              )}
+                  
+                />
 
-              <Tooltip title="Làm mới dữ liệu">
-                <Button
-                  icon={<ReloadOutlined />}
-                  onClick={fetchData}
-                  loading={loading}
+                <Divider type="vertical" style={{ height: 60, margin: 0 }} />
+              </div>
+            </Col>
+          </Row>
+        </Card>
+
+        {/* Action Card */}
+        <Card
+          style={{
+            marginBottom: 24,
+            borderRadius: 20,
+            border: `2px solid ${vibrantColors.primary}20`,
+            boxShadow: `0 8px 32px ${vibrantColors.primary}10`,
+            background: "rgba(255, 255, 255, 0.98)",
+            backdropFilter: "blur(10px)",
+          }}
+          bodyStyle={{ padding: "24px 28px" }}
+        >
+          <Row gutter={[20, 20]} align="middle">
+            <Col xs={24} md={12}>
+              <Space size={16} wrap>
+                {hasPermission("CREATE_ARTIFACT") && (
+                  <Button
+                    type="primary"
+                    onClick={() => openModal()}
+                    icon={<PlusOutlined />}
+                    style={{
+                      background: `linear-gradient(135deg, ${vibrantColors.gradientStart}, ${vibrantColors.gradientEnd})`,
+                      border: "none",
+                      borderRadius: 12,
+                      height: 48,
+                      padding: "0 28px",
+                      fontWeight: 700,
+                      fontSize: 15,
+                      boxShadow: `0 8px 24px ${vibrantColors.primary}30`,
+                      display: "flex",
+                      alignItems: "center",
+                      gap: 10,
+                      transition: "all 0.3s",
+                    }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.transform = "translateY(-4px)";
+                      e.currentTarget.style.boxShadow = `0 12px 32px ${vibrantColors.primary}40`;
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.transform = "translateY(0)";
+                      e.currentTarget.style.boxShadow = `0 8px 24px ${vibrantColors.primary}30`;
+                    }}
+                  >
+                    Thêm danh mục mới
+                  </Button>
+                )}
+
+                <Tooltip 
+                  title="Làm mới dữ liệu" 
+                  color={vibrantColors.info}
+                >
+                  <Button
+                    icon={<ReloadOutlined style={{ fontSize: 18 }} />}
+                    onClick={fetchData}
+                    loading={loading}
+                    style={{
+                      borderRadius: 12,
+                      height: 48,
+                      width: 48,
+                      border: `1px solid ${vibrantColors.primary}30`,
+                      background: `linear-gradient(135deg, ${vibrantColors.primary}08, ${vibrantColors.primary}03)`,
+                      transition: "all 0.3s",
+                    }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.transform = "rotate(180deg)";
+                      e.currentTarget.style.borderColor = vibrantColors.primary;
+                      e.currentTarget.style.background = `linear-gradient(135deg, ${vibrantColors.primary}15, ${vibrantColors.primary}08)`;
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.transform = "rotate(0)";
+                      e.currentTarget.style.borderColor = `${vibrantColors.primary}30`;
+                      e.currentTarget.style.background = `linear-gradient(135deg, ${vibrantColors.primary}08, ${vibrantColors.primary}03)`;
+                    }}
+                  />
+                </Tooltip>
+              </Space>
+            </Col>
+
+            <Col xs={24} md={12}>
+              <div
+                style={{
+                  display: "flex",
+                  gap: 16,
+                  flexWrap: "wrap",
+                  justifyContent: "flex-end",
+                }}
+              >
+                <Input
+                  placeholder="Tìm theo tên hoặc mô tả..."
+                  value={q}
+                  onChange={(e) => onSearchChange(e.target.value)}
+                  allowClear
+                  prefix={<SearchOutlined style={{ color: vibrantColors.primary }} />}
                   style={{
-                    borderRadius: 8,
-                    height: 40,
-                    width: 40,
+                    width: 300,
+                    borderRadius: 12,
+                    border: `2px solid ${vibrantColors.primary}30`,
+                    padding: "12px 16px",
+                    height: 48,
+                    fontSize: 15,
+                    transition: "all 0.3s",
+                  }}
+                  onFocus={(e) => {
+                    e.target.style.borderColor = vibrantColors.primary;
+                    e.target.style.boxShadow = `0 0 0 4px ${vibrantColors.primary}20`;
+                  }}
+                  onBlur={(e) => {
+                    e.target.style.borderColor = `${vibrantColors.primary}30`;
+                    e.target.style.boxShadow = "none";
                   }}
                 />
-              </Tooltip>
-            </Space>
-          </Col>
 
-          <Col xs={24} md={12}>
-            <div
-              style={{
-                display: "flex",
-                gap: 12,
-                flexWrap: "wrap",
-                justifyContent: "flex-end",
-              }}
-            >
-              <Input
-                placeholder="Tìm theo tên hoặc mô tả..."
-                value={q}
-                onChange={(e) => onSearchChange(e.target.value)}
-                allowClear
-                prefix={<SearchOutlined style={{ color: "#bfbfbf" }} />}
-                style={{
-                  width: 280,
-                  borderRadius: 8,
-                  border: "1px solid #d9d9d9",
-                }}
-                size="large"
-              />
-
-              <Space>
                 <Select
                   placeholder="Sắp xếp"
                   value={sortBy}
                   onChange={handleSortChange}
-                  suffixIcon={<FilterOutlined />}
-                  style={{ width: 140, borderRadius: 8 }}
+                  suffixIcon={<SortAscendingOutlined style={{ color: vibrantColors.primary }} />}
+                  style={{ 
+                    width: 160, 
+                    borderRadius: 12,
+                    border: `2px solid ${vibrantColors.primary}30`,
+                  }}
                   size="large"
+                  dropdownStyle={{
+                    borderRadius: 12,
+                    border: `1px solid ${vibrantColors.primary}20`,
+                    boxShadow: `0 8px 32px ${vibrantColors.primary}15`,
+                  }}
                 >
                   <Option value="name">Tên A-Z</Option>
                   <Option value="createdAt">Mới nhất</Option>
                 </Select>
-              </Space>
+              </div>
+            </Col>
+          </Row>
+
+          {/* Search Results Info */}
+          {q && (
+            <div style={{ 
+              marginTop: 20,
+              padding: "16px",
+              borderRadius: 12,
+              background: `linear-gradient(135deg, ${vibrantColors.success}10, ${vibrantColors.success}05)`,
+              border: `1px solid ${vibrantColors.success}30`,
+            }}>
+              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+                <Space>
+                  <ClockCircleOutlined style={{ color: vibrantColors.success }} />
+                  <Text style={{ color: vibrantColors.success, fontWeight: 600 }}>
+                    Tìm thấy <Text strong style={{ fontSize: 18 }}>{data.length}</Text> danh mục phù hợp với từ
+                    khóa "{q}"
+                  </Text>
+                </Space>
+                <Button
+                  type="link"
+                  onClick={() => {
+                    setQ("");
+                    setData(allData);
+                  }}
+                  style={{ 
+                    color: vibrantColors.error,
+                    fontWeight: 600,
+                    padding: "8px 16px",
+                    borderRadius: 8,
+                  }}
+                >
+                  Xóa tìm kiếm
+                </Button>
+              </div>
             </div>
-          </Col>
-        </Row>
+          )}
+        </Card>
 
-        {/* Search Results Info */}
-        {q && (
-          <div style={{ marginTop: 16 }}>
-            <Text type="secondary">
-              Tìm thấy <Text strong>{data.length}</Text> danh mục phù hợp với từ
-              khóa "{q}"
-              <Button
-                type="link"
-                size="small"
-                onClick={() => {
-                  setQ("");
-                  setData(allData);
-                }}
-                style={{ marginLeft: 8 }}
-              >
-                Xóa tìm kiếm
-              </Button>
-            </Text>
-          </div>
-        )}
-      </Card>
+        {/* Table Section */}
+        <Card
+          style={{
+            borderRadius: 20,
+            border: `2px solid ${vibrantColors.primary}20`,
+            boxShadow: `0 8px 40px ${vibrantColors.primary}10`,
+            background: "rgba(255, 255, 255, 0.98)",
+            backdropFilter: "blur(10px)",
+            overflow: "hidden",
+            position: "relative",
+          }}
+          bodyStyle={{ padding: 0 }}
+        >
+          <div style={{
+            position: "absolute",
+            bottom: 0,
+            left: 0,
+            width: 100,
+            height: 100,
+            background: `radial-gradient(circle, ${vibrantColors.info}10, transparent 70%)`,
+            borderRadius: "50%",
+            transform: "translate(-30%, 30%)",
+            pointerEvents: "none",
+          }} />
+          
+          <CategoryTable
+            data={data}
+            loading={loading}
+            page={page}
+            onEdit={openModal}
+            onDelete={handleDelete}
+            onChange={handleTableChange}
+          />
+        </Card>
 
-      {/* Table Section */}
-      <Card
-        style={{
-          borderRadius: 12,
-          border: "1px solid #f0f0f0",
-          boxShadow: "0 2px 8px rgba(0,0,0,0.04)",
-          overflow: "hidden",
-        }}
-        bodyStyle={{ padding: 0 }}
-      >
-        <CategoryTable
-          data={data}
-          loading={loading}
-          page={page}
-          onEdit={openModal}
-          onDelete={handleDelete}
-          onChange={handleTableChange}
+        {/* Form Modal */}
+        <CategoryFormModal
+          open={modalOpen}
+          editing={editing}
+          onCancel={() => setModalOpen(false)}
+          onSubmit={handleSubmit}
         />
-      </Card>
-
-      {/* Form Modal */}
-      <CategoryFormModal
-        open={modalOpen}
-        editing={editing}
-        onCancel={() => setModalOpen(false)}
-        onSubmit={handleSubmit}
-      />
+      </div>
     </div>
   );
 };

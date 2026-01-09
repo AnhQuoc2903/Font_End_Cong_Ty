@@ -67,10 +67,6 @@ axiosClient.interceptors.response.use(
         // ✅ LƯU accessToken MỚI
         localStorage.setItem("accessToken", newAccessToken);
 
-        if (res.data.user) {
-          localStorage.setItem("user", JSON.stringify(res.data.user));
-        }
-
         onRefreshed(newAccessToken);
         isRefreshing = false;
 

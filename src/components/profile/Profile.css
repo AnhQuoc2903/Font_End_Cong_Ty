@@ -1,0 +1,127 @@
+/* Modal container */
+.profile-modal .ant-modal-content {
+  border-radius: 16px !important;
+  overflow: hidden;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+  background: rgba(255, 255, 255, 0.95);
+  padding: 0 !important;
+}
+
+/* Dark mode support */
+@media (prefers-color-scheme: dark) {
+  .profile-modal .ant-modal-content {
+    background: rgba(30, 30, 30, 0.95);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+  }
+}
+
+/* Close button hover effect */
+.modal-close-btn:hover {
+  transform: rotate(90deg) !important;
+  background: rgba(0, 0, 0, 0.05) !important;
+  border-color: var(--ant-color-primary) !important;
+}
+
+@media (prefers-color-scheme: dark) {
+  .modal-close-btn:hover {
+    background: rgba(255, 255, 255, 0.1) !important;
+  }
+}
+
+/* Body scroll */
+.profile-modal-body {
+  max-height: 68vh;
+  overflow-y: auto;
+  padding: 32px !important;
+  scroll-behavior: smooth;
+}
+
+/* Modern scrollbar */
+.profile-modal-body::-webkit-scrollbar {
+  width: 8px;
+}
+
+.profile-modal-body::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.03);
+  border-radius: 10px;
+  margin: 8px 0;
+}
+
+.profile-modal-body::-webkit-scrollbar-thumb {
+  background: linear-gradient(
+    135deg,
+    var(--ant-color-primary) 0%,
+    var(--ant-color-primary-active) 100%
+  );
+  border-radius: 10px;
+  transition: all 0.3s ease;
+}
+
+.profile-modal-body::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(
+    135deg,
+    var(--ant-color-primary-hover) 0%,
+    var(--ant-color-primary-active) 100%
+  );
+}
+
+/* Smooth overlay animation */
+.profile-modal .ant-modal-mask {
+  backdrop-filter: blur(4px);
+  background: rgba(0, 0, 0, 0.45);
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .profile-modal .ant-modal {
+    max-width: 95vw;
+    margin: 16px;
+  }
+
+  .profile-modal-body {
+    max-height: 75vh;
+    padding: 20px !important;
+  }
+}
+
+/* Modal entrance animation */
+@keyframes modalFadeIn {
+  from {
+    opacity: 0;
+    transform: scale(0.95) translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+.profile-modal .ant-modal-content {
+  animation: modalFadeIn 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.profile-avatar-camera {
+  position: absolute;
+  bottom: 8px;
+  right: 8px;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.profile-avatar-camera:hover {
+  transform: scale(1.1);
+}
+
+.change-password-modal .ant-modal-content {
+  border-radius: 20px;
+  overflow: hidden;
+  border: 2px solid rgba(124, 58, 237, 0.2);
+}

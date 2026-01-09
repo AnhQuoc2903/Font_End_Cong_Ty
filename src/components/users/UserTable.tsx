@@ -19,7 +19,7 @@ import {
   HistoryOutlined,
 } from "@ant-design/icons";
 import type { ColumnsType } from "antd/es/table";
-import "./User.css"
+import "./User.css";
 
 const { Text } = Typography;
 
@@ -45,6 +45,8 @@ type UserRow = {
   _id: string;
   email: string;
   fullName?: string;
+  phone?: string; // ✅ THÊM
+  avatar?: string;
   isActive?: boolean;
   roles?: Role[];
   department?: Department;
@@ -76,18 +78,33 @@ const UserTable: React.FC<UserTableProps> = ({
       title: "Thông tin người dùng",
       key: "info",
       render: (_, record) => (
-        <Space direction="vertical" size={2}>
-          <Space align="center">
-            <UserOutlined style={{ color: "#1890ff" }} />
+        <Space align="start">
+          <Avatar
+            size={40}
+            src={record.avatar}
+            icon={<UserOutlined />}
+            style={{ backgroundColor: "#1890ff", flexShrink: 0 }}
+          />
+
+          <Space direction="vertical" size={2}>
             <Text strong>{record.fullName || "Chưa có tên"}</Text>
-          </Space>
-          <Space align="center">
-            <MailOutlined style={{ color: "#8c8c8c", fontSize: 12 }} />
-            <Text type="secondary">{record.email}</Text>
+
+            <Space size={6}>
+              <MailOutlined style={{ fontSize: 12, color: "#8c8c8c" }} />
+              <Text type="secondary">{record.email}</Text>
+            </Space>
+
+            {record.phone && (
+              <Space size={6}>
+                <span style={{ fontSize: 12 }}>📞</span>
+                <Text type="secondary">{record.phone}</Text>
+              </Space>
+            )}
           </Space>
         </Space>
       ),
     },
+
     {
       title: "Vai trò",
       key: "roles",

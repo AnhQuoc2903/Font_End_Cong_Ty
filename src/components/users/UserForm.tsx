@@ -29,7 +29,7 @@ import {
   DownOutlined,
 } from "@ant-design/icons";
 
-const { Title, Text } = Typography;
+const {  Text } = Typography;
 
 type EditingUser = {
   _id: string;
@@ -89,35 +89,7 @@ const UserForm: React.FC<UserFormProps> = ({
   return (
     <div style={{ maxWidth: 800, margin: "0 auto" }}>
       {/* Header Section */}
-      <div style={{ marginBottom: 32 }}>
-        <Space
-          direction="vertical"
-          size={0}
-          align="center"
-          style={{ width: "100%" }}
-        >
-          <Avatar
-            size={64}
-            style={{
-              background: editing
-                ? "linear-gradient(135deg, #1890ff 0%, #0050b3 100%)"
-                : "linear-gradient(135deg, #52c41a 0%, #389e0d 100%)",
-              marginBottom: 16,
-              border: "3px solid white",
-              boxShadow: "0 4px 12px rgba(0,0,0,0.1)",
-            }}
-            icon={<UserOutlined />}
-          />
-          <Title level={3} style={{ margin: 0, color: "#262626" }}>
-            {editing ? "Chỉnh sửa người dùng" : "Tạo người dùng mới"}
-          </Title>
-          <Text type="secondary">
-            {editing
-              ? "Cập nhật thông tin và vai trò của người dùng"
-              : "Thêm người dùng mới vào hệ thống"}
-          </Text>
-        </Space>
-      </div>
+      
 
       <Form
         layout="vertical"

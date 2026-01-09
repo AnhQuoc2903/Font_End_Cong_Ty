@@ -23,7 +23,6 @@ import {
 import {
   UserOutlined,
   EditOutlined,
-  DeleteOutlined,
   PlusOutlined,
   HistoryOutlined,
   EyeOutlined,
@@ -49,23 +48,29 @@ const { Text, Title } = Typography;
 const ACTION_LABEL: Record<string, string> = {
   CREATE_USER: "Tạo người dùng",
   UPDATE_USER: "Cập nhật người dùng",
+  UPDATE_PROFILE: "Cập nhật hồ sơ",
+  UPDATE_AVATAR: "Cập nhật ảnh đại diện",
 };
 
 const ACTION_COLOR: Record<string, string> = {
   CREATE_USER: "#52c41a",
   UPDATE_USER: "#1890ff",
+  UPDATE_PROFILE: "#722ed1",
+  UPDATE_AVATAR: "#eb2f96",
 };
 
 const ACTION_ICON: Record<string, React.ReactNode> = {
   CREATE_USER: <PlusOutlined />,
   UPDATE_USER: <EditOutlined />,
-  DELETE_USER: <DeleteOutlined />,
+  UPDATE_PROFILE: <UserOutlined />,
+  UPDATE_AVATAR: <UserOutlined />,
 };
 
 const ACTION_BG_COLOR: Record<string, string> = {
   CREATE_USER: "rgba(82, 196, 26, 0.1)",
   UPDATE_USER: "rgba(24, 144, 255, 0.1)",
-  DELETE_USER: "rgba(255, 77, 79, 0.1)",
+  UPDATE_PROFILE: "rgba(114, 46, 209, 0.1)",
+  UPDATE_AVATAR: "rgba(235, 47, 150, 0.1)",
 };
 
 type Props = {
@@ -116,18 +121,32 @@ const UserActivityModal: React.FC<Props> = ({
 
   const filteredLogs = logs.filter((log) => {
     if (activeFilter === "ALL") return true;
+
+    if (activeFilter === "UPDATE_USER") {
+      return ["UPDATE_USER", "UPDATE_PROFILE", "UPDATE_AVATAR"].includes(
+        log.action
+      );
+    }
+
     return log.action === activeFilter;
   });
 
   const stats = {
     total: logs.length,
     create: logs.filter((l) => l.action === "CREATE_USER").length,
-    update: logs.filter((l) => l.action === "UPDATE_USER").length,
+    update: logs.filter((l) =>
+      ["UPDATE_USER", "UPDATE_PROFILE", "UPDATE_AVATAR"].includes(l.action)
+    ).length,
     delete: logs.filter((l) => l.action === "DELETE_USER").length,
   };
 
   const renderChangeDetails = (record: any) => {
-    if (record.action !== "UPDATE_USER") return null;
+    if (
+      !["UPDATE_USER", "UPDATE_PROFILE", "UPDATE_AVATAR"].includes(
+        record.action
+      )
+    )
+      return null;
 
     const changes = [];
 
@@ -137,6 +156,21 @@ const UserActivityModal: React.FC<Props> = ({
         field: "Họ tên",
         before: record.before?.fullName || "(Trống)",
         after: record.after?.fullName || "(Trống)",
+      });
+    }
+    if (record.before?.phone !== record.after?.phone) {
+      changes.push({
+        field: "Số điện thoại",
+        before: record.before?.phone || "(Trống)",
+        after: record.after?.phone || "(Trống)",
+      });
+    }
+
+    if (record.before?.avatar !== record.after?.avatar) {
+      changes.push({
+        field: "Ảnh đại diện",
+        before: record.before?.avatar || null,
+        after: record.after?.avatar || null,
       });
     }
 
@@ -199,7 +233,7 @@ const UserActivityModal: React.FC<Props> = ({
               color="blue"
               dot={<ArrowRightOutlined />}
             >
-              <Space style={{ width: "100%" }}>
+              <Space style={{ width: "100%" }} align="center">
                 <Badge
                   count={change.field}
                   style={{
@@ -207,13 +241,42 @@ const UserActivityModal: React.FC<Props> = ({
                     color: "#595959",
                   }}
                 />
-                <Text delete style={{ color: "#ff4d4f" }}>
-                  {change.before}
-                </Text>
-                <ArrowRightOutlined />
-                <Text strong style={{ color: "#52c41a" }}>
-                  {change.after}
-                </Text>
+
+                {change.field === "Ảnh đại diện" ? (
+                  <Space>
+                    {/* BEFORE */}
+                    <Avatar
+                      src={change.before}
+                      size={40}
+                      icon={!change.before && <UserOutlined />}
+                      style={{
+                        border: "2px solid #ff4d4f",
+                      }}
+                    />
+
+                    <ArrowRightOutlined />
+
+                    {/* AFTER */}
+                    <Avatar
+                      src={change.after}
+                      size={40}
+                      icon={!change.after && <UserOutlined />}
+                      style={{
+                        border: "2px solid #52c41a",
+                      }}
+                    />
+                  </Space>
+                ) : (
+                  <Space>
+                    <Text delete style={{ color: "#ff4d4f" }}>
+                      {String(change.before)}
+                    </Text>
+                    <ArrowRightOutlined />
+                    <Text strong style={{ color: "#52c41a" }}>
+                      {String(change.after)}
+                    </Text>
+                  </Space>
+                )}
               </Space>
             </Timeline.Item>
           ))}
@@ -329,69 +392,67 @@ const UserActivityModal: React.FC<Props> = ({
       },
     },
     {
-  title: (
-    <div
-      style={{
-        padding: "8px 12px",
-        cursor: "pointer",
-        userSelect: "none",
-        display: "flex",
-        alignItems: "center",
-        gap: 6,
-      }}
-    >
-      <ClockCircleOutlined />
-      <span>Thời gian</span>
-    </div>
-  ),
-  dataIndex: "createdAt",
-  width: 200,
-  render: (createdAt: string) => {
-    const isRecent = dayjs().diff(dayjs(createdAt), "hour") < 24;
-
-    return (
-      <Tooltip
-        title={
-          <>
-            {dayjs(createdAt).format("DD/MM/YYYY HH:mm:ss")}
-            {isRecent && (
-              <>
-                <br />
-                <Tag color="green" style={{ marginTop: 4 }}>
-                  Gần đây
-                </Tag>
-              </>
-            )}
-          </>
-        }
-      >
+      title: (
         <div
           style={{
-            padding: "10px 14px", // 👈 to hơn
-            backgroundColor: isRecent ? "#f6ffed" : "#fafafa",
-            borderRadius: 10,
-            border: `1px solid ${isRecent ? "#b7eb8f" : "#f0f0f0"}`,
+            padding: "8px 12px",
+            cursor: "pointer",
+            userSelect: "none",
+            display: "flex",
+            alignItems: "center",
+            gap: 6,
           }}
         >
-          <Space size={6}>
-            <ClockCircleOutlined
-              style={{ color: isRecent ? "#52c41a" : "#8c8c8c" }}
-            />
-            <Text strong={isRecent}>
-              {dayjs(createdAt).fromNow()}
-            </Text>
-          </Space>
-          <div style={{ fontSize: 11, color: "#bfbfbf", marginTop: 4 }}>
-            {dayjs(createdAt).format("DD/MM")}
-          </div>
+          <ClockCircleOutlined />
+          <span>Thời gian</span>
         </div>
-      </Tooltip>
-    );
-  },
-  sorter: (a: any, b: any) =>
-    dayjs(a.createdAt).unix() - dayjs(b.createdAt).unix(),
-  defaultSortOrder: "descend" as const,
-},
+      ),
+      dataIndex: "createdAt",
+      width: 200,
+      render: (createdAt: string) => {
+        const isRecent = dayjs().diff(dayjs(createdAt), "hour") < 24;
+
+        return (
+          <Tooltip
+            title={
+              <>
+                {dayjs(createdAt).format("DD/MM/YYYY HH:mm:ss")}
+                {isRecent && (
+                  <>
+                    <br />
+                    <Tag color="green" style={{ marginTop: 4 }}>
+                      Gần đây
+                    </Tag>
+                  </>
+                )}
+              </>
+            }
+          >
+            <div
+              style={{
+                padding: "10px 14px", // 👈 to hơn
+                backgroundColor: isRecent ? "#f6ffed" : "#fafafa",
+                borderRadius: 10,
+                border: `1px solid ${isRecent ? "#b7eb8f" : "#f0f0f0"}`,
+              }}
+            >
+              <Space size={6}>
+                <ClockCircleOutlined
+                  style={{ color: isRecent ? "#52c41a" : "#8c8c8c" }}
+                />
+                <Text strong={isRecent}>{dayjs(createdAt).fromNow()}</Text>
+              </Space>
+              <div style={{ fontSize: 11, color: "#bfbfbf", marginTop: 4 }}>
+                {dayjs(createdAt).format("DD/MM")}
+              </div>
+            </div>
+          </Tooltip>
+        );
+      },
+      sorter: (a: any, b: any) =>
+        dayjs(a.createdAt).unix() - dayjs(b.createdAt).unix(),
+      defaultSortOrder: "descend" as const,
+    },
 
     {
       title: "Thao tác",
@@ -426,7 +487,11 @@ const UserActivityModal: React.FC<Props> = ({
   ];
 
   const expandedRowRender = (record: any) => {
-    const isUpdate = record.action === "UPDATE_USER";
+    const isUpdate = [
+      "UPDATE_USER",
+      "UPDATE_PROFILE",
+      "UPDATE_AVATAR",
+    ].includes(record.action);
 
     return (
       <div

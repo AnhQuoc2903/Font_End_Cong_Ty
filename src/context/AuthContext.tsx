@@ -15,14 +15,15 @@ type Role = {
 };
 
 type User = {
-  _id: string;          // ✅ ĐÚNG
+  _id: string; // ✅ ĐÚNG
   email: string;
   fullName?: string;
-  roles?: Role[];       // ✅ backend populate role
+  avatar?: string; // ✅ THÊM
+  phone?: string;
+  roles?: Role[]; // ✅ backend populate role
   permissions?: string[];
   department?: Department; // ✅ đã có
 };
-
 
 type AuthContextType = {
   user: User | null;
@@ -31,6 +32,7 @@ type AuthContextType = {
   login: (email: string, password: string) => Promise<void>;
   logout: () => Promise<void>;
   hasPermission: (perm: string) => boolean;
+  updateUser: (data: Partial<User>) => void;
 };
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -63,6 +65,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
     setLoading(false);
   }, []);
 
+
+
   /**
    * =========================
    * LOGIN
@@ -88,6 +92,19 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
       message.error(err?.response?.data?.message || "Đăng nhập thất bại");
       throw err;
     }
+  };
+
+  const updateUser = (data: Partial<User>) => {
+    setUser((prev) => {
+      if (!prev) return prev;
+
+      const updated = { ...prev, ...data };
+
+      // 🔥 sync localStorage để F5 không mất avatar
+      localStorage.setItem("user", JSON.stringify(updated));
+
+      return updated;
+    });
   };
 
   /**
@@ -119,7 +136,15 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
 
   return (
     <AuthContext.Provider
-      value={{ user, accessToken, loading, login, logout, hasPermission }}
+      value={{
+        user,
+        accessToken,
+        loading,
+        login,
+        logout,
+        hasPermission,
+        updateUser,
+      }}
     >
       {children}
     </AuthContext.Provider>

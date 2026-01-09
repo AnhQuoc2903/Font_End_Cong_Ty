@@ -1,4 +1,5 @@
 import { axiosNoAuth } from "./noAuthClient";
+import axiosClient from "./axiosClient";
 
 export const authApi = {
   login(data: { email: string; password: string }) {
@@ -17,5 +18,8 @@ export const authApi = {
 
   resetPassword(payload: { token: string; password: string }) {
     return axiosNoAuth.post("/auth/reset-password", payload);
+  },
+  changePassword(data: { currentPassword: string; newPassword: string }) {
+    return axiosClient.post("/auth/change-password", data);
   },
 };

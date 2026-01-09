@@ -561,8 +561,9 @@ const DashboardPage: React.FC = () => {
                     fontWeight: 700,
                   }}
                 >
-                  Chào mừng trở lại,{" "}
+                  Chào mừng trở lại,{" "}                 
                   {user?.fullName?.split(" ")[0] || "Quản trị viên"}!
+             
                 </Title>
                 <Text
                   type="secondary"

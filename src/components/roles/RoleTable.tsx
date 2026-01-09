@@ -2,7 +2,12 @@
 import React from "react";
 import { Table, Typography, Space, Avatar, Tag, Tooltip, Button } from "antd";
 import type { ColumnsType } from "antd/es/table";
-import { EditOutlined, DeleteOutlined, KeyOutlined } from "@ant-design/icons";
+import {
+  EditOutlined,
+  DeleteOutlined,
+  KeyOutlined,
+  EyeOutlined,
+} from "@ant-design/icons";
 import type { RoleRow } from "./types.ts";
 
 const { Text } = Typography;
@@ -137,32 +142,138 @@ const RoleTable: React.FC<RoleTableProps> = ({
     },
 
     {
-      title: "THAO TÁC",
+      title: (
+        <div>
+          <span>THAO TÁC</span>
+        </div>
+      ),
       key: "action",
-      width: 160,
+      width: 180,
       align: "center",
+      fixed: "right",
       render: (_, r) =>
         canManage ? (
-          <Space>
-            <Tooltip title="Chỉnh sửa">
+          <Space size={8}>
+            <Tooltip
+              title="Chỉnh sửa"
+              color="#7c3aed"
+              overlayInnerStyle={{
+                borderRadius: 8,
+                fontWeight: 500,
+                fontSize: 13,
+              }}
+            >
               <Button
                 type="text"
-                icon={<EditOutlined />}
+                icon={<EditOutlined style={{ fontSize: 16 }} />}
                 onClick={() => onEdit(r)}
-                style={{ color: "#1890ff" }}
+                style={{
+                  borderRadius: 10,
+                  background:
+                    "linear-gradient(135deg, rgba(124, 58, 237, 0.1), rgba(124, 58, 237, 0.05))",
+                  color: "#7c3aed",
+                  width: 40,
+                  height: 40,
+                  border: "1px solid rgba(124, 58, 237, 0.2)",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.transform =
+                    "translateY(-2px) scale(1.05)";
+                  e.currentTarget.style.background =
+                    "linear-gradient(135deg, rgba(124, 58, 237, 0.2), rgba(124, 58, 237, 0.1))";
+                  e.currentTarget.style.boxShadow =
+                    "0 4px 16px rgba(124, 58, 237, 0.25)";
+                  e.currentTarget.style.borderColor = "#7c3aed";
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.transform = "translateY(0) scale(1)";
+                  e.currentTarget.style.background =
+                    "linear-gradient(135deg, rgba(124, 58, 237, 0.1), rgba(124, 58, 237, 0.05))";
+                  e.currentTarget.style.boxShadow = "none";
+                  e.currentTarget.style.borderColor = "rgba(124, 58, 237, 0.2)";
+                }}
               />
             </Tooltip>
-            <Tooltip title="Xóa">
+
+            <Tooltip
+              title="Xóa"
+              color="#ef4444"
+              overlayInnerStyle={{
+                borderRadius: 8,
+                fontWeight: 500,
+                fontSize: 13,
+              }}
+            >
               <Button
                 type="text"
-                danger
-                icon={<DeleteOutlined />}
+                icon={<DeleteOutlined style={{ fontSize: 16 }} />}
                 onClick={() => onDelete(r._id)}
+                style={{
+                  borderRadius: 10,
+                  background:
+                    "linear-gradient(135deg, rgba(239, 68, 68, 0.1), rgba(239, 68, 68, 0.05))",
+                  color: "#ef4444",
+                  width: 40,
+                  height: 40,
+                  border: "1px solid rgba(239, 68, 68, 0.2)",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.transform =
+                    "translateY(-2px) scale(1.05)";
+                  e.currentTarget.style.background =
+                    "linear-gradient(135deg, rgba(239, 68, 68, 0.2), rgba(239, 68, 68, 0.1))";
+                  e.currentTarget.style.boxShadow =
+                    "0 4px 16px rgba(239, 68, 68, 0.25)";
+                  e.currentTarget.style.borderColor = "#ef4444";
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.transform = "translateY(0) scale(1)";
+                  e.currentTarget.style.background =
+                    "linear-gradient(135deg, rgba(239, 68, 68, 0.1), rgba(239, 68, 68, 0.05))";
+                  e.currentTarget.style.boxShadow = "none";
+                  e.currentTarget.style.borderColor = "rgba(239, 68, 68, 0.2)";
+                }}
               />
             </Tooltip>
           </Space>
         ) : (
-          <Tag color="default">Chỉ xem</Tag>
+          <div
+            style={{
+              padding: "8px 16px",
+              borderRadius: 10,
+              background:
+                "linear-gradient(135deg, rgba(107, 114, 128, 0.1), rgba(107, 114, 128, 0.05))",
+              border: "1px solid rgba(107, 114, 128, 0.2)",
+              display: "inline-flex",
+              alignItems: "center",
+              gap: 8,
+            }}
+          >
+            <EyeOutlined
+              style={{
+                fontSize: 14,
+                color: "#6b7280",
+              }}
+            />
+            <Text
+              style={{
+                fontSize: 13,
+                fontWeight: 600,
+                color: "#6b7280",
+                letterSpacing: "0.3px",
+              }}
+            >
+              Chỉ xem
+            </Text>
+          </div>
         ),
     },
   ];
