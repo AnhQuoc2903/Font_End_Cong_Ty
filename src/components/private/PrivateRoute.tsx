@@ -316,7 +316,7 @@ const PrivateRoute: React.FC<PrivateRouteProps> = ({
                   type="primary"
                   size="large"
                   icon={<HomeOutlined />}
-                  onClick={() => navigate("/dashboard")}
+                  onClick={() => navigate("/")}
                   style={{
                     height: 48,
                     borderRadius: 10,

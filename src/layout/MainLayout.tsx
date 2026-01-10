@@ -86,11 +86,6 @@ const MainLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
 
   const menuItems = [
     {
-      key: "/dashboard",
-      icon: <DashboardOutlined />,
-      label: <Link to="/dashboard">Dashboard</Link>,
-    },
-    {
       key: "/artifacts",
       icon: <TrophyOutlined />,
       label: <Link to="/artifacts">Hiện vật</Link>,
@@ -103,6 +98,11 @@ const MainLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   ];
 
   if (hasPermission("ADMIN_PANEL")) {
+    menuItems.unshift({
+      key: "/dashboard",
+      icon: <DashboardOutlined />,
+      label: <Link to="/dashboard">Dashboard</Link>,
+    });
     menuItems.push(
       {
         key: "/departments",

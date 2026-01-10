@@ -764,7 +764,6 @@ export default function ProfilePage() {
                           e.currentTarget.style.boxShadow = `0 8px 32px ${vibrantColors.primary}40`;
                         }}
                       >
-                        <SaveOutlined style={{ fontSize: 18 }} />
                         Lưu thay đổi
                       </Button>
                     </div>

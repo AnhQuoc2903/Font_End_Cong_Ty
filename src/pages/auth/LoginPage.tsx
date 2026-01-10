@@ -20,17 +20,21 @@ const LoginPage: React.FC = () => {
   const [submitting, setSubmitting] = useState(false);
   const navigate = useNavigate();
 
-  const onFinish = async (values: { email: string; password: string }) => {
-    try {
-      setSubmitting(true);
-      await login(values.email, values.password);
-      navigate("/dashboard");
-    } catch (err: any) {
-      console.error(err);
-    } finally {
-      setSubmitting(false);
-    }
-  };
+ const onFinish = async (values: { email: string; password: string }) => {
+  try {
+    setSubmitting(true);
+    await login(values.email, values.password);
+
+    // ✅ CHỈ SỬA DÒNG NÀY
+    navigate("/", { replace: true });
+
+  } catch (err: any) {
+    console.error(err);
+  } finally {
+    setSubmitting(false);
+  }
+};
+
 
   return (
     <div

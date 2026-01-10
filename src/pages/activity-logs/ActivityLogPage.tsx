@@ -46,6 +46,9 @@ const ACTION_LABEL: Record<string, string> = {
   CREATE_PRODUCT: "Tạo sản phẩm",
   UPDATE_PRODUCT: "Cập nhật sản phẩm",
   DELETE_PRODUCT: "Xóa sản phẩm",
+  UPDATE_PROFILE: "Cập nhật thông tin cá nhân",
+  UPDATE_AVATAR: "Cập nhật ảnh đại diện",
+  DELETE_AVATAR: "Xóa ảnh đại diện",
 };
 
 const ACTION_COLOR: Record<string, string> = {
@@ -55,6 +58,9 @@ const ACTION_COLOR: Record<string, string> = {
   CREATE_PRODUCT: "green",
   UPDATE_PRODUCT: "cyan",
   DELETE_PRODUCT: "volcano",
+  UPDATE_PROFILE: "cyan",
+  UPDATE_AVATAR: "purple",
+  DELETE_AVATAR: "volcano",
 };
 
 const ACTION_ICON: Record<string, React.ReactNode> = {
@@ -64,6 +70,9 @@ const ACTION_ICON: Record<string, React.ReactNode> = {
   CREATE_PRODUCT: <PlusOutlined />,
   UPDATE_PRODUCT: <EditOutlined />,
   DELETE_PRODUCT: <DeleteOutlined />,
+  UPDATE_PROFILE: <EditOutlined />,
+  UPDATE_AVATAR: <UserOutlined />,
+  DELETE_AVATAR: <DeleteOutlined />,
 };
 
 const ActivityLogPage: React.FC = () => {
@@ -258,179 +267,187 @@ const ActivityLogPage: React.FC = () => {
       },
     },
     {
-  title: "CHI TIẾT",
-  width: 300,
-  render: (_: any, record: any) => {
-    const { action, after, details } = record;
+      title: "CHI TIẾT",
+      width: 300,
+      render: (_: any, record: any) => {
+        const { action, after, details } = record;
 
-    const getActionIcon = () => {
-      switch (action) {
-        case "CREATE_USER":
-        case "CREATE_PRODUCT":
-          return <PlusOutlined style={{ color: "#52c41a" }} />;
-        case "UPDATE_USER":
-        case "UPDATE_PRODUCT":
-          return <EditOutlined style={{ color: "#1890ff" }} />;
-        case "DELETE_USER":
-        case "DELETE_PRODUCT":
-          return <DeleteOutlined style={{ color: "#ff4d4f" }} />;
-        default:
-          return <HistoryOutlined style={{ color: "#8c8c8c" }} />;
-      }
-    };
+        const getActionIcon = () => {
+          switch (action) {
+            case "CREATE_USER":
+            case "CREATE_PRODUCT":
+              return <PlusOutlined style={{ color: "#52c41a" }} />;
+            case "UPDATE_USER":
+            case "UPDATE_PRODUCT":
+              return <EditOutlined style={{ color: "#1890ff" }} />;
+            case "DELETE_USER":
+            case "DELETE_PRODUCT":
+              return <DeleteOutlined style={{ color: "#ff4d4f" }} />;
+            default:
+              return <HistoryOutlined style={{ color: "#8c8c8c" }} />;
+          }
+        };
 
-    const renderChanges = () => {
-      if (!after || Object.keys(after).length === 0) return null;
+        const renderChanges = () => {
+          if (!after || Object.keys(after).length === 0) return null;
 
-      return (
-        <div style={{ marginTop: 8 }}>
-          <Text type="secondary" style={{ fontSize: 11 }}>
-            Thay đổi:
-          </Text>
-          <div style={{ marginLeft: 8 }}>
-            {Object.entries(after)
-              .slice(0, 2)
-              .map(([key, value]) => {
-                if (key === "avatar") {
-                  return (
-                    <div key={key} style={{ marginTop: 8 }}>
-                      <Text strong style={{ fontSize: 12 }}>
-                        Ảnh đại diện:
-                      </Text>
-                      <div style={{ marginTop: 6 }}>
-                        {renderAvatarChange(
-                          record.before?.avatar,
-                          value as string
-                        )}
+          return (
+            <div style={{ marginTop: 8 }}>
+              <Text type="secondary" style={{ fontSize: 11 }}>
+                Thay đổi:
+              </Text>
+              <div style={{ marginLeft: 8 }}>
+                {Object.entries(after)
+                  .slice(0, 2)
+                  .map(([key, value]) => {
+                    if (key === "avatar") {
+                      return (
+                        <div key={key} style={{ marginTop: 8 }}>
+                          <Text strong style={{ fontSize: 12 }}>
+                            Ảnh đại diện:
+                          </Text>
+                          <div style={{ marginTop: 6 }}>
+                            {renderAvatarChange(
+                              record.before?.avatar,
+                              value as string
+                            )}
+                          </div>
+                        </div>
+                      );
+                    }
+
+                    return (
+                      <div
+                        key={key}
+                        style={{
+                          fontSize: 12,
+                          color: "#666",
+                          marginTop: 4,
+                          display: "flex",
+                          alignItems: "flex-start",
+                        }}
+                      >
+                        <span style={{ marginRight: 4 }}>•</span>
+                        <span style={{ flexShrink: 0, marginRight: 6 }}>
+                          {key}:
+                        </span>
+                        <Text
+                          code
+                          style={{
+                            fontSize: 11,
+                            padding: "1px 4px",
+                            borderRadius: 4,
+                            backgroundColor: "#f5f5f5",
+                            maxWidth: "150px",
+                            overflow: "hidden",
+                            textOverflow: "ellipsis",
+                            whiteSpace: "nowrap",
+                          }}
+                          title={String(value)}
+                        >
+                          {String(value)}
+                        </Text>
                       </div>
-                    </div>
-                  );
-                }
+                    );
+                  })}
 
-                return (
-                  <div 
-                    key={key} 
-                    style={{ 
-                      fontSize: 12, 
-                      color: "#666",
+                {Object.keys(after).length > 2 && (
+                  <Text
+                    type="secondary"
+                    style={{
+                      fontSize: 11,
+                      fontStyle: "italic",
                       marginTop: 4,
-                      display: "flex",
-                      alignItems: "flex-start"
+                      display: "block",
                     }}
                   >
-                    <span style={{ marginRight: 4 }}>•</span>
-                    <span style={{ flexShrink: 0, marginRight: 6 }}>{key}:</span>
-                    <Text 
-                      code 
-                      style={{ 
-                        fontSize: 11, 
-                        padding: "1px 4px",
-                        borderRadius: 4,
-                        backgroundColor: "#f5f5f5",
-                        maxWidth: "150px",
-                        overflow: "hidden",
-                        textOverflow: "ellipsis",
-                        whiteSpace: "nowrap"
-                      }}
-                      title={String(value)}
-                    >
-                      {String(value)}
-                    </Text>
-                  </div>
-                );
-              })}
-
-            {Object.keys(after).length > 2 && (
-              <Text
-                type="secondary"
-                style={{ 
-                  fontSize: 11, 
-                  fontStyle: "italic",
-                  marginTop: 4,
-                  display: "block"
-                }}
-              >
-                +{Object.keys(after).length - 2} thay đổi khác
-              </Text>
-            )}
-          </div>
-        </div>
-      );
-    };
-
-    return (
-      <Tooltip 
-        title={
-          <div style={{ maxWidth: 400 }}>
-            <div style={{ marginBottom: 8 }}>
-              <Text strong>Mô tả:</Text>
-              <div style={{ marginTop: 4 }}>{details || ACTION_LABEL[action] || action}</div>
-            </div>
-            {after && Object.keys(after).length > 0 && (
-              <div>
-                <Text strong>Chi tiết thay đổi:</Text>
-                {Object.entries(after).map(([key, value]) => (
-                  <div key={key} style={{ fontSize: 12, marginTop: 4 }}>
-                    • <Text strong>{key}:</Text> {String(value)}
-                  </div>
-                ))}
+                    +{Object.keys(after).length - 2} thay đổi khác
+                  </Text>
+                )}
               </div>
-            )}
-          </div>
-        }
-        placement="left"
-        overlayStyle={{ maxWidth: 400 }}
-      >
-        <div
-          style={{
-            cursor: "pointer",
-            padding: "4px 0",
-          }}
-        >
-          <div
-            style={{ 
-              display: "flex", 
-              alignItems: "flex-start", 
-              gap: "8px" 
-            }}
-          >
-            <div style={{ 
-              marginTop: "2px", 
-              flexShrink: 0 
-            }}>
-              {getActionIcon()}
             </div>
+          );
+        };
 
-            <div style={{ 
-              flex: 1, 
-              minWidth: 0,
-              overflow: "hidden"
-            }}>
-              {/* Mô tả chính */}
-              <Text
+        return (
+          <Tooltip
+            title={
+              <div style={{ maxWidth: 400 }}>
+                <div style={{ marginBottom: 8 }}>
+                  <Text strong>Mô tả:</Text>
+                  <div style={{ marginTop: 4 }}>
+                    {details || ACTION_LABEL[action] || action}
+                  </div>
+                </div>
+                {after && Object.keys(after).length > 0 && (
+                  <div>
+                    <Text strong>Chi tiết thay đổi:</Text>
+                    {Object.entries(after).map(([key, value]) => (
+                      <div key={key} style={{ fontSize: 12, marginTop: 4 }}>
+                        • <Text strong>{key}:</Text> {String(value)}
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            }
+            placement="left"
+            overlayStyle={{ maxWidth: 400 }}
+          >
+            <div
+              style={{
+                cursor: "pointer",
+                padding: "4px 0",
+              }}
+            >
+              <div
                 style={{
-                  fontSize: "12px",
-                  lineHeight: "1.4",
-                  color: "#1a1a1a",
-                  display: "block",
-                  fontWeight: 500,
-                  overflow: "hidden",
-                  textOverflow: "ellipsis",
-                  whiteSpace: "nowrap"
+                  display: "flex",
+                  alignItems: "flex-start",
+                  gap: "8px",
                 }}
-                title={details || ACTION_LABEL[action] || action}
               >
-                {details || ACTION_LABEL[action] || action}
-              </Text>
-              
-              {renderChanges()}
+                <div
+                  style={{
+                    marginTop: "2px",
+                    flexShrink: 0,
+                  }}
+                >
+                  {getActionIcon()}
+                </div>
+
+                <div
+                  style={{
+                    flex: 1,
+                    minWidth: 0,
+                    overflow: "hidden",
+                  }}
+                >
+                  {/* Mô tả chính */}
+                  <Text
+                    style={{
+                      fontSize: "12px",
+                      lineHeight: "1.4",
+                      color: "#1a1a1a",
+                      display: "block",
+                      fontWeight: 500,
+                      overflow: "hidden",
+                      textOverflow: "ellipsis",
+                      whiteSpace: "nowrap",
+                    }}
+                    title={details || ACTION_LABEL[action] || action}
+                  >
+                    {details || ACTION_LABEL[action] || action}
+                  </Text>
+
+                  {renderChanges()}
+                </div>
+              </div>
             </div>
-          </div>
-        </div>
-      </Tooltip>
-    );
-  },
-},
+          </Tooltip>
+        );
+      },
+    },
     {
       title: "THỜI GIAN",
       dataIndex: "createdAt",
